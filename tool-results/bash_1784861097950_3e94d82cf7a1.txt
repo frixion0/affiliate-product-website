@@ -1,0 +1,925 @@
+- generic
+  - StaticText "FREE SHIPPING ON ORDERS OVER $150"
+  - StaticText "NEW COLLECTION NOW LIVE"
+  - StaticText "30-DAY EASY RETURNS"
+  - StaticText "MEMBERS GET 15% OFF"
+  - StaticText "FREE SHIPPING ON ORDERS OVER $150"
+  - StaticText "NEW COLLECTION NOW LIVE"
+  - StaticText "30-DAY EASY RETURNS"
+  - StaticText "MEMBERS GET 15% OFF"
+  - StaticText "FREE SHIPPING ON ORDERS OVER $150"
+  - StaticText "NEW COLLECTION NOW LIVE"
+  - StaticText "30-DAY EASY RETURNS"
+  - StaticText "MEMBERS GET 15% OFF"
+  - StaticText "FREE SHIPPING ON ORDERS OVER $150"
+  - StaticText "NEW COLLECTION NOW LIVE"
+  - StaticText "30-DAY EASY RETURNS"
+  - StaticText "MEMBERS GET 15% OFF"
+  - StaticText "FREE SHIPPING ON ORDERS OVER $150"
+  - StaticText "NEW COLLECTION NOW LIVE"
+  - StaticText "30-DAY EASY RETURNS"
+  - StaticText "MEMBERS GET 15% OFF"
+  - StaticText "FREE SHIPPING ON ORDERS OVER $150"
+  - StaticText "NEW COLLECTION NOW LIVE"
+  - StaticText "30-DAY EASY RETURNS"
+  - StaticText "MEMBERS GET 15% OFF"
+  - StaticText "FREE SHIPPING ON ORDERS OVER $150"
+  - StaticText "NEW COLLECTION NOW LIVE"
+  - StaticText "30-DAY EASY RETURNS"
+  - StaticText "MEMBERS GET 15% OFF"
+  - StaticText "FREE SHIPPING ON ORDERS OVER $150"
+  - StaticText "NEW COLLECTION NOW LIVE"
+  - StaticText "30-DAY EASY RETURNS"
+  - StaticText "MEMBERS GET 15% OFF"
+  - banner
+    - navigation
+      - link "LUXE" [ref=e12]
+      - link "New Arrivals" [ref=e13]
+        - StaticText "New Arrivals"
+      - link "Featured" [ref=e14]
+        - StaticText "Featured"
+      - link "Categories" [ref=e15]
+        - StaticText "Categories"
+      - link "Trending" [ref=e16]
+        - StaticText "Trending"
+      - button "Search" [ref=e17]
+      - button "Wishlist" [ref=e18]
+      - button "Cart" [ref=e19]
+        - StaticText "1"
+      - button "Account" [ref=e20]
+  - main
+    - generic
+      - generic
+      - generic
+        - StaticText "NEW SEASON 2025"
+      - heading "Redefine YourStyle" [level=1, ref=e68]
+        - StaticText "Redefine YourStyle"
+      - paragraph
+        - StaticText "Curated collections of premium products designed for those who appreciate the extraordinary in everyday living."
+      - link "Shop Collection" [ref=e69]
+      - link "Watch Lookbook" [ref=e70]
+      - StaticText "50K+"
+      - StaticText "Happy Customers"
+      - StaticText "500+"
+      - StaticText "Premium Products"
+      - StaticText "4.9"
+      - StaticText "Average Rating"
+      - StaticText "LX"
+      - paragraph
+        - StaticText "LUXE Verified"
+      - paragraph
+        - StaticText "Authentic Products"
+      - image
+      - image
+      - image
+      - image
+      - image
+      - StaticText "4.9/5 (2.3K)"
+    - paragraph
+      - StaticText "Free Shipping"
+    - paragraph
+      - StaticText "On all orders over $150"
+    - paragraph
+      - StaticText "Secure Payment"
+    - paragraph
+      - StaticText "256-bit SSL encryption"
+    - paragraph
+      - StaticText "Easy Returns"
+    - paragraph
+      - StaticText "30-day return policy"
+    - paragraph
+      - StaticText "24/7 Support"
+    - paragraph
+      - StaticText "Dedicated help center"
+    - heading "Shop by Category" [level=2, ref=e21]
+    - paragraph
+      - StaticText "Find exactly what you are looking for"
+    - generic
+      - button "Accessories Accessories 2 products" [ref=e71]
+        - image "Accessories"
+        - generic
+          - heading "Accessories" [level=3, ref=e158]
+          - StaticText "2"
+          - StaticText " products"
+      - button "Beauty Beauty 2 products" [ref=e72]
+        - image "Beauty"
+        - generic
+          - heading "Beauty" [level=3, ref=e159]
+          - StaticText "2"
+          - StaticText " products"
+      - button "Clothing Clothing 3 products" [ref=e73]
+        - image "Clothing"
+        - generic
+          - heading "Clothing" [level=3, ref=e160]
+          - StaticText "3"
+          - StaticText " products"
+      - button "Electronics Electronics 4 products" [ref=e74]
+        - image "Electronics"
+        - generic
+          - heading "Electronics" [level=3, ref=e161]
+          - StaticText "4"
+          - StaticText " products"
+      - button "Home & Living Home & Living 3 products" [ref=e75]
+        - image "Home & Living"
+        - generic
+          - heading "Home & Living" [level=3, ref=e162]
+          - StaticText "3"
+          - StaticText " products"
+      - button "Sports Sports 2 products" [ref=e76]
+        - image "Sports"
+        - generic
+          - heading "Sports" [level=3, ref=e163]
+          - StaticText "2"
+          - StaticText " products"
+    - heading "Featured Collection" [level=2, ref=e22]
+    - paragraph
+      - StaticText "Hand-picked favorites from our latest arrivals"
+    - generic [ref=e23] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Vitamin C Serum"
+        - generic
+          - StaticText "-"
+          - StaticText "25"
+          - StaticText "%"
+          - StaticText "BESTSELLER"
+        - generic
+          - button "Add to Cart" [ref=e164]
+          - button [ref=e165]
+          - button [ref=e166]
+      - paragraph
+        - StaticText "BEAUTY"
+      - heading "Vitamin C Serum" [level=3, ref=e77]
+      - StaticText "4.7"
+      - StaticText "("
+      - StaticText "2156"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "59.99"
+      - StaticText "$"
+      - StaticText "79.99"
+    - generic [ref=e24] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Carbon Fiber Running Shoes"
+        - generic
+          - StaticText "-"
+          - StaticText "23"
+          - StaticText "%"
+          - StaticText "BESTSELLER"
+        - generic
+          - button "Add to Cart" [ref=e167]
+          - button [ref=e168]
+          - button [ref=e169]
+      - paragraph
+        - StaticText "SPORTS"
+      - heading "Carbon Fiber Running Shoes" [level=3, ref=e78]
+      - StaticText "4.8"
+      - StaticText "("
+      - StaticText "1023"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "199.99"
+      - StaticText "$"
+      - StaticText "259.99"
+    - generic [ref=e25] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Leather Crossbody Bag"
+        - generic
+          - StaticText "-"
+          - StaticText "24"
+          - StaticText "%"
+          - StaticText "BESTSELLER"
+        - generic
+          - button "Add to Cart" [ref=e170]
+          - button [ref=e171]
+          - button [ref=e172]
+      - paragraph
+        - StaticText "ACCESSORIES"
+      - heading "Leather Crossbody Bag" [level=3, ref=e79]
+      - StaticText "4.7"
+      - StaticText "("
+      - StaticText "456"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "189.99"
+      - StaticText "$"
+      - StaticText "249.99"
+    - generic [ref=e26] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Scandinavian Floor Lamp"
+        - StaticText "-"
+        - StaticText "24"
+        - StaticText "%"
+        - generic
+          - button "Add to Cart" [ref=e173]
+          - button [ref=e174]
+          - button [ref=e175]
+      - paragraph
+        - StaticText "HOME & LIVING"
+      - heading "Scandinavian Floor Lamp" [level=3, ref=e80]
+      - StaticText "4.6"
+      - StaticText "("
+      - StaticText "89"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "249.99"
+      - StaticText "$"
+      - StaticText "329.99"
+    - generic [ref=e27] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Merino Wool Overcoat"
+        - StaticText "-"
+        - StaticText "25"
+        - StaticText "%"
+        - generic
+          - button "Add to Cart" [ref=e176]
+          - button [ref=e177]
+          - button [ref=e178]
+      - paragraph
+        - StaticText "CLOTHING"
+      - heading "Merino Wool Overcoat" [level=3, ref=e81]
+      - StaticText "4.7"
+      - StaticText "("
+      - StaticText "156"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "389.99"
+      - StaticText "$"
+      - StaticText "520.00"
+    - generic [ref=e28] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Ultra-Slim Laptop Pro"
+        - StaticText "-"
+        - StaticText "17"
+        - StaticText "%"
+        - generic
+          - button "Add to Cart" [ref=e179]
+          - button [ref=e180]
+          - button [ref=e181]
+      - paragraph
+        - StaticText "ELECTRONICS"
+      - heading "Ultra-Slim Laptop Pro" [level=3, ref=e82]
+      - StaticText "4.9"
+      - StaticText "("
+      - StaticText "567"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "1499.99"
+      - StaticText "$"
+      - StaticText "1799.99"
+    - generic [ref=e29] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Wireless Noise-Canceling Headphones"
+        - generic
+          - StaticText "-"
+          - StaticText "25"
+          - StaticText "%"
+          - StaticText "BESTSELLER"
+          - StaticText "NEW"
+        - generic
+          - button "Add to Cart" [ref=e182]
+          - button [ref=e183]
+          - button [ref=e184]
+      - paragraph
+        - StaticText "ELECTRONICS"
+      - heading "Wireless Noise-Canceling Headphones" [level=3, ref=e83]
+      - StaticText "4.8"
+      - StaticText "("
+      - StaticText "234"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "299.99"
+      - StaticText "$"
+      - StaticText "399.99"
+    - generic
+      - heading "Trending Now" [level=2, ref=e30]
+      - paragraph
+        - StaticText "What everyone is buying this week"
+      - generic
+        - generic [ref=e84] clickable [cursor:pointer, onclick]
+          - generic
+          - paragraph
+          - heading "Vitamin C Serum" [level=4, ref=e138]
+          - StaticText "$"
+          - StaticText "59.99"
+          - StaticText "$"
+          - StaticText "79.99"
+          - StaticText "4.7"
+        - generic [ref=e85] clickable [cursor:pointer, onclick]
+          - generic
+          - paragraph
+          - heading "Carbon Fiber Running Shoes" [level=4, ref=e139]
+          - StaticText "$"
+          - StaticText "199.99"
+          - StaticText "$"
+          - StaticText "259.99"
+          - StaticText "4.8"
+        - generic [ref=e86] clickable [cursor:pointer, onclick]
+          - generic
+          - paragraph
+          - heading "Titanium Sunglasses" [level=4, ref=e140]
+          - StaticText "$"
+          - StaticText "219.99"
+          - StaticText "$"
+          - StaticText "279.99"
+          - StaticText "4.5"
+        - generic [ref=e87] clickable [cursor:pointer, onclick]
+          - generic
+          - paragraph
+          - heading "Leather Crossbody Bag" [level=4, ref=e141]
+          - StaticText "$"
+          - StaticText "189.99"
+          - StaticText "$"
+          - StaticText "249.99"
+          - StaticText "4.7"
+        - generic [ref=e88] clickable [cursor:pointer, onclick]
+          - generic
+          - paragraph
+          - heading "Performance Joggers" [level=4, ref=e142]
+          - StaticText "$"
+          - StaticText "89.99"
+          - StaticText "$"
+          - StaticText "119.99"
+          - StaticText "4.4"
+        - generic [ref=e89] clickable [cursor:pointer, onclick]
+          - image "Organic Cotton Tee"
+          - paragraph
+          - heading "Organic Cotton Tee" [level=4, ref=e143]
+          - StaticText "$"
+          - StaticText "49.99"
+          - StaticText "4.5"
+        - generic [ref=e90] clickable [cursor:pointer, onclick]
+          - generic
+          - paragraph
+          - heading "Smart Watch Series X" [level=4, ref=e144]
+          - StaticText "$"
+          - StaticText "449.99"
+          - StaticText "$"
+          - StaticText "499.99"
+          - StaticText "4.6"
+        - generic [ref=e91] clickable [cursor:pointer, onclick]
+          - generic
+          - paragraph
+          - heading "Wireless Noise-Canceling Headphones" [level=4, ref=e145]
+          - StaticText "$"
+          - StaticText "299.99"
+          - StaticText "$"
+          - StaticText "399.99"
+          - StaticText "4.8"
+        - generic [ref=e92] clickable [cursor:pointer, onclick]
+          - generic
+          - paragraph
+          - heading "Vitamin C Serum" [level=4, ref=e146]
+          - StaticText "$"
+          - StaticText "59.99"
+          - StaticText "$"
+          - StaticText "79.99"
+          - StaticText "4.7"
+        - generic [ref=e93] clickable [cursor:pointer, onclick]
+          - generic
+          - paragraph
+          - heading "Carbon Fiber Running Shoes" [level=4, ref=e147]
+          - StaticText "$"
+          - StaticText "199.99"
+          - StaticText "$"
+          - StaticText "259.99"
+          - StaticText "4.8"
+        - generic [ref=e94] clickable [cursor:pointer, onclick]
+          - generic
+          - paragraph
+          - heading "Titanium Sunglasses" [level=4, ref=e148]
+          - StaticText "$"
+          - StaticText "219.99"
+          - StaticText "$"
+          - StaticText "279.99"
+          - StaticText "4.5"
+        - generic [ref=e95] clickable [cursor:pointer, onclick]
+          - generic
+          - paragraph
+          - heading "Leather Crossbody Bag" [level=4, ref=e149]
+          - StaticText "$"
+          - StaticText "189.99"
+          - StaticText "$"
+          - StaticText "249.99"
+          - StaticText "4.7"
+        - generic [ref=e96] clickable [cursor:pointer, onclick]
+          - generic
+          - paragraph
+          - heading "Performance Joggers" [level=4, ref=e150]
+          - StaticText "$"
+          - StaticText "89.99"
+          - StaticText "$"
+          - StaticText "119.99"
+          - StaticText "4.4"
+        - generic [ref=e97] clickable [cursor:pointer, onclick]
+          - image "Organic Cotton Tee"
+          - paragraph
+          - heading "Organic Cotton Tee" [level=4, ref=e151]
+          - StaticText "$"
+          - StaticText "49.99"
+          - StaticText "4.5"
+        - generic [ref=e98] clickable [cursor:pointer, onclick]
+          - generic
+          - paragraph
+          - heading "Smart Watch Series X" [level=4, ref=e152]
+          - StaticText "$"
+          - StaticText "449.99"
+          - StaticText "$"
+          - StaticText "499.99"
+          - StaticText "4.6"
+        - generic [ref=e99] clickable [cursor:pointer, onclick]
+          - generic
+          - paragraph
+          - heading "Wireless Noise-Canceling Headphones" [level=4, ref=e153]
+          - StaticText "$"
+          - StaticText "299.99"
+          - StaticText "$"
+          - StaticText "399.99"
+          - StaticText "4.8"
+    - heading "All Products" [level=2, ref=e31]
+    - paragraph
+      - StaticText "Browse our complete collection"
+    - button "All" [ref=e32]
+    - button "Accessories" [ref=e33]
+    - button "Beauty" [ref=e34]
+    - button "Clothing" [ref=e35]
+    - button "Electronics" [ref=e36]
+    - button "Home & Living" [ref=e37]
+    - button "Sports" [ref=e38]
+    - combobox [expanded=false, ref=e39]: Newest
+      - generic [ref=e100] clickable [onclick]
+        - StaticText "Newest"
+    - generic [ref=e40] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Vitamin C Serum"
+        - generic
+          - StaticText "-"
+          - StaticText "25"
+          - StaticText "%"
+          - StaticText "BESTSELLER"
+        - generic
+          - button "Add to Cart" [ref=e185]
+          - button [ref=e186]
+          - button [ref=e187]
+      - paragraph
+        - StaticText "BEAUTY"
+      - heading "Vitamin C Serum" [level=3, ref=e101]
+      - StaticText "4.7"
+      - StaticText "("
+      - StaticText "2156"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "59.99"
+      - StaticText "$"
+      - StaticText "79.99"
+    - generic [ref=e41] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Luxury Fragrance Set"
+        - StaticText "-"
+        - StaticText "26"
+        - StaticText "%"
+        - generic
+          - button "Add to Cart" [ref=e188]
+          - button [ref=e189]
+          - button [ref=e190]
+      - paragraph
+        - StaticText "BEAUTY"
+      - heading "Luxury Fragrance Set" [level=3, ref=e102]
+      - StaticText "4.9"
+      - StaticText "("
+      - StaticText "178"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "129.99"
+      - StaticText "$"
+      - StaticText "175.00"
+    - generic [ref=e42] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Carbon Fiber Running Shoes"
+        - generic
+          - StaticText "-"
+          - StaticText "23"
+          - StaticText "%"
+          - StaticText "BESTSELLER"
+        - generic
+          - button "Add to Cart" [ref=e191]
+          - button [ref=e192]
+          - button [ref=e193]
+      - paragraph
+        - StaticText "SPORTS"
+      - heading "Carbon Fiber Running Shoes" [level=3, ref=e103]
+      - StaticText "4.8"
+      - StaticText "("
+      - StaticText "1023"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "199.99"
+      - StaticText "$"
+      - StaticText "259.99"
+    - generic [ref=e43] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Yoga Mat Pro"
+        - generic
+          - button "Add to Cart" [ref=e194]
+          - button [ref=e195]
+          - button [ref=e196]
+      - paragraph
+        - StaticText "SPORTS"
+      - heading "Yoga Mat Pro" [level=3, ref=e104]
+      - StaticText "4.6"
+      - StaticText "("
+      - StaticText "534"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "79.99"
+    - generic [ref=e44] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Titanium Sunglasses"
+        - StaticText "-"
+        - StaticText "21"
+        - StaticText "%"
+        - generic
+          - button "Add to Cart" [ref=e197]
+          - button [ref=e198]
+          - button [ref=e199]
+      - paragraph
+        - StaticText "ACCESSORIES"
+      - heading "Titanium Sunglasses" [level=3, ref=e105]
+      - StaticText "4.5"
+      - StaticText "("
+      - StaticText "267"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "219.99"
+      - StaticText "$"
+      - StaticText "279.99"
+    - generic [ref=e45] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Ceramic Planter Set"
+        - generic
+          - button "Add to Cart" [ref=e200]
+          - button [ref=e201]
+          - button [ref=e202]
+      - paragraph
+        - StaticText "HOME & LIVING"
+      - heading "Ceramic Planter Set" [level=3, ref=e106]
+      - StaticText "4.3"
+      - StaticText "("
+      - StaticText "312"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "69.99"
+    - generic [ref=e46] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Leather Crossbody Bag"
+        - generic
+          - StaticText "-"
+          - StaticText "24"
+          - StaticText "%"
+          - StaticText "BESTSELLER"
+        - generic
+          - button "Add to Cart" [ref=e203]
+          - button [ref=e204]
+          - button [ref=e205]
+      - paragraph
+        - StaticText "ACCESSORIES"
+      - heading "Leather Crossbody Bag" [level=3, ref=e107]
+      - StaticText "4.7"
+      - StaticText "("
+      - StaticText "456"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "189.99"
+      - StaticText "$"
+      - StaticText "249.99"
+    - generic [ref=e47] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Scandinavian Floor Lamp"
+        - StaticText "-"
+        - StaticText "24"
+        - StaticText "%"
+        - generic
+          - button "Add to Cart" [ref=e206]
+          - button [ref=e207]
+          - button [ref=e208]
+      - paragraph
+        - StaticText "HOME & LIVING"
+      - heading "Scandinavian Floor Lamp" [level=3, ref=e108]
+      - StaticText "4.6"
+      - StaticText "("
+      - StaticText "89"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "249.99"
+      - StaticText "$"
+      - StaticText "329.99"
+    - generic [ref=e48] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Handwoven Throw Blanket"
+        - StaticText "-"
+        - StaticText "25"
+        - StaticText "%"
+        - generic
+          - button "Add to Cart" [ref=e209]
+          - button [ref=e210]
+          - button [ref=e211]
+      - paragraph
+        - StaticText "HOME & LIVING"
+      - heading "Handwoven Throw Blanket" [level=3, ref=e109]
+      - StaticText "4.8"
+      - StaticText "("
+      - StaticText "234"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "149.99"
+      - StaticText "$"
+      - StaticText "199.99"
+    - generic [ref=e49] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Performance Joggers"
+        - StaticText "-"
+        - StaticText "25"
+        - StaticText "%"
+        - generic
+          - button "Add to Cart" [ref=e212]
+          - button [ref=e213]
+          - button [ref=e214]
+      - paragraph
+        - StaticText "CLOTHING"
+      - heading "Performance Joggers" [level=3, ref=e110]
+      - StaticText "4.4"
+      - StaticText "("
+      - StaticText "678"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "89.99"
+      - StaticText "$"
+      - StaticText "119.99"
+    - generic [ref=e50] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Merino Wool Overcoat"
+        - StaticText "-"
+        - StaticText "25"
+        - StaticText "%"
+        - generic
+          - button "Add to Cart" [ref=e215]
+          - button [ref=e216]
+          - button [ref=e217]
+      - paragraph
+        - StaticText "CLOTHING"
+      - heading "Merino Wool Overcoat" [level=3, ref=e111]
+      - StaticText "4.7"
+      - StaticText "("
+      - StaticText "156"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "389.99"
+      - StaticText "$"
+      - StaticText "520.00"
+    - generic [ref=e51] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Organic Cotton Tee"
+        - StaticText "BESTSELLER"
+        - generic
+          - button "Add to Cart" [ref=e218]
+          - button [ref=e219]
+          - button [ref=e220]
+      - paragraph
+        - StaticText "CLOTHING"
+      - heading "Organic Cotton Tee" [level=3, ref=e112]
+      - StaticText "4.5"
+      - StaticText "("
+      - StaticText "1203"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "49.99"
+    - generic [ref=e52] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Smart Watch Series X"
+        - StaticText "-"
+        - StaticText "10"
+        - StaticText "%"
+        - generic
+          - button "Add to Cart" [ref=e221]
+          - button [ref=e222]
+          - button [ref=e223]
+      - paragraph
+        - StaticText "ELECTRONICS"
+      - heading "Smart Watch Series X" [level=3, ref=e113]
+      - StaticText "4.6"
+      - StaticText "("
+      - StaticText "891"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "449.99"
+      - StaticText "$"
+      - StaticText "499.99"
+    - generic [ref=e53] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Wireless Charging Pad"
+        - StaticText "-"
+        - StaticText "33"
+        - StaticText "%"
+        - generic
+          - button "Add to Cart" [ref=e224]
+          - button [ref=e225]
+          - button [ref=e226]
+      - paragraph
+        - StaticText "ELECTRONICS"
+      - heading "Wireless Charging Pad" [level=3, ref=e114]
+      - StaticText "4.3"
+      - StaticText "("
+      - StaticText "445"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "39.99"
+      - StaticText "$"
+      - StaticText "59.99"
+    - generic [ref=e54] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Ultra-Slim Laptop Pro"
+        - StaticText "-"
+        - StaticText "17"
+        - StaticText "%"
+        - generic
+          - button "Add to Cart" [ref=e227]
+          - button [ref=e228]
+          - button [ref=e229]
+      - paragraph
+        - StaticText "ELECTRONICS"
+      - heading "Ultra-Slim Laptop Pro" [level=3, ref=e115]
+      - StaticText "4.9"
+      - StaticText "("
+      - StaticText "567"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "1499.99"
+      - StaticText "$"
+      - StaticText "1799.99"
+    - generic [ref=e55] clickable [cursor:pointer, onclick]
+      - generic
+        - image "Wireless Noise-Canceling Headphones"
+        - generic
+          - StaticText "-"
+          - StaticText "25"
+          - StaticText "%"
+          - StaticText "BESTSELLER"
+          - StaticText "NEW"
+        - generic
+          - button "Add to Cart" [ref=e230]
+          - button [ref=e231]
+          - button [ref=e232]
+      - paragraph
+        - StaticText "ELECTRONICS"
+      - heading "Wireless Noise-Canceling Headphones" [level=3, ref=e116]
+      - StaticText "4.8"
+      - StaticText "("
+      - StaticText "234"
+      - StaticText ")"
+      - StaticText "$"
+      - StaticText "299.99"
+      - StaticText "$"
+      - StaticText "399.99"
+    - heading "Loved by Thousands" [level=2, ref=e56]
+    - paragraph
+      - StaticText "Real reviews from real customers who love the LUXE experience"
+    - generic
+      - paragraph
+        - StaticText "“LUXE has completely transformed how I shop online. The quality is unmatched, and every piece I have purchased feels premium. The attention to detail in packaging and delivery is remarkable.”"
+      - StaticText "SM"
+      - paragraph
+        - StaticText "Sarah Mitchell"
+      - paragraph
+        - StaticText "Fashion Designer"
+    - generic
+      - paragraph
+        - StaticText "“I have been a customer for two years now. The tech products are always genuine, prices are competitive, and the customer service team goes above and beyond every single time.”"
+      - StaticText "DC"
+      - paragraph
+        - StaticText "David Chen"
+      - paragraph
+        - StaticText "Tech Entrepreneur"
+    - generic
+      - paragraph
+        - StaticText "“The home collection is absolutely stunning. Every piece is thoughtfully curated. My clients always ask where I source from, and LUXE is my go-to recommendation without hesitation.”"
+      - StaticText "AJ"
+      - paragraph
+        - StaticText "Amara Johnson"
+      - paragraph
+        - StaticText "Interior Designer"
+    - generic
+      - generic
+        - heading "Join the LUXE Club" [level=2, ref=e154]
+        - paragraph
+          - StaticText "Get 15% off your first order plus early access to new arrivals and exclusive offers."
+        - textbox "Enter your email" [ref=e155]
+        - button "Subscribe" [ref=e156]
+  - contentinfo
+    - StaticText "LUXE"
+    - paragraph
+      - StaticText "Curated premium products for the modern lifestyle."
+    - button "Social media" [ref=e3]
+    - button "Social media" [ref=e4]
+    - button "Social media" [ref=e5]
+    - button "Social media" [ref=e6]
+    - heading "Shop" [level=4, ref=e7]
+    - list
+      - listitem [level=1]
+        - link "New Arrivals" [ref=e117]
+      - listitem [level=1]
+        - link "Featured" [ref=e118]
+      - listitem [level=1]
+        - link "Bestsellers" [ref=e119]
+      - listitem [level=1]
+        - link "Sale" [ref=e120]
+      - listitem [level=1]
+        - link "Gift Cards" [ref=e121]
+    - heading "Company" [level=4, ref=e8]
+    - list
+      - listitem [level=1]
+        - link "About Us" [ref=e122]
+      - listitem [level=1]
+        - link "Careers" [ref=e123]
+      - listitem [level=1]
+        - link "Press" [ref=e124]
+      - listitem [level=1]
+        - link "Sustainability" [ref=e125]
+      - listitem [level=1]
+        - link "Affiliates" [ref=e126]
+    - heading "Support" [level=4, ref=e9]
+    - list
+      - listitem [level=1]
+        - link "Help Center" [ref=e127]
+      - listitem [level=1]
+        - link "Shipping Info" [ref=e128]
+      - listitem [level=1]
+        - link "Returns" [ref=e129]
+      - listitem [level=1]
+        - link "Size Guide" [ref=e130]
+      - listitem [level=1]
+        - link "Contact Us" [ref=e131]
+    - heading "Legal" [level=4, ref=e10]
+    - list
+      - listitem [level=1]
+        - link "Privacy Policy" [ref=e132]
+      - listitem [level=1]
+        - link "Terms of Service" [ref=e133]
+      - listitem [level=1]
+        - link "Cookie Policy" [ref=e134]
+    - paragraph
+      - StaticText "© 2025 LUXE. All rights reserved."
+    - StaticText "Visa"
+    - StaticText "Mastercard"
+    - StaticText "Amex"
+    - StaticText "PayPal"
+  - generic [ref=e1] clickable [onclick]
+  - generic
+    - button "Close" [ref=e11]
+    - generic
+      - generic
+        - image "Vitamin C Serum"
+        - button [ref=e135]
+        - button [ref=e136]
+      - button [ref=e57]
+      - button [ref=e58]
+      - paragraph
+        - StaticText "BEAUTY"
+      - heading "Vitamin C Serum" [level=2, ref=e59]
+      - StaticText "4.7"
+      - StaticText "("
+      - StaticText "2156"
+      - StaticText " reviews)"
+      - StaticText "$"
+      - StaticText "59.99"
+      - StaticText "$"
+      - StaticText "79.99"
+      - StaticText "Save "
+      - StaticText "25"
+      - StaticText "%"
+      - button "Description" [ref=e60]
+      - button "Reviews (2156)" [ref=e61]
+        - StaticText "Reviews (2156)"
+      - paragraph
+        - StaticText "20% L-ascorbic acid with hyaluronic acid and vitamin E. Brightens, firms, and protects. Clinically proven to reduce dark spots in 4 weeks."
+      - button "Decrease quantity" [ref=e62]
+      - StaticText "1"
+      - button "Increase quantity" [ref=e63]
+      - button "Add to Cart — $59.99" [ref=e64]
+        - StaticText "Add to Cart — $59.99"
+      - button [ref=e65]
+      - StaticText "Free Shipping"
+      - StaticText "2yr Warranty"
+      - StaticText "30d Returns"
+      - heading "You May Also Like" [level=3, ref=e66]
+      - generic [ref=e67] clickable [cursor:pointer, onclick]
+        - generic
+          - image "Luxury Fragrance Set"
+          - StaticText "-"
+          - StaticText "26"
+          - StaticText "%"
+          - generic
+            - button "Add to Cart" [ref=e233]
+            - button [ref=e234]
+            - button [ref=e235]
+        - heading "Luxury Fragrance Set" [level=3, ref=e137]
+  - region "Notifications alt+T" [ref=e2]
+  - button "Open Next.js Dev Tools" [expanded=false, ref=e157]
