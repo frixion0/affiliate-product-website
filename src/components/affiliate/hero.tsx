@@ -36,7 +36,7 @@ export function Hero({ searchQuery, onSearchChange }: HeroProps) {
   );
 
   return (
-    <section className="relative pt-28 pb-16 sm:pt-32 sm:pb-20 overflow-hidden">
+    <section className="relative pt-20 pb-10 sm:pt-28 sm:pb-16 lg:pt-32 lg:pb-20 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
         <motion.div
@@ -44,14 +44,14 @@ export function Hero({ searchQuery, onSearchChange }: HeroProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium mb-4 sm:mb-6">
             <Sparkles className="h-4 w-4" />
             Curated deals just for you
           </div>
         </motion.div>
 
         <motion.h1
-          className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-4"
+          className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-3 sm:mb-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}
@@ -61,7 +61,7 @@ export function Hero({ searchQuery, onSearchChange }: HeroProps) {
         </motion.h1>
 
         <motion.p
-          className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8"
+          className="text-base sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-6 sm:mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
@@ -82,13 +82,13 @@ export function Hero({ searchQuery, onSearchChange }: HeroProps) {
               value={localQuery}
               onChange={(e) => setLocalQuery(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="pl-11 h-12 text-base rounded-xl bg-card border-border shadow-sm"
+              className="pl-11 h-10 sm:h-12 text-sm sm:text-base rounded-xl bg-card border-border shadow-sm"
             />
           </div>
           <Button
             onClick={handleSubmit}
             size="lg"
-            className="h-12 px-6 rounded-xl font-medium"
+            className="h-10 sm:h-12 px-4 sm:px-6 rounded-xl font-medium"
           >
             Search
           </Button>

@@ -83,7 +83,7 @@ export function Footer() {
             &copy; {new Date().getFullYear()} DealsHub. All rights reserved.
           </p>
           <p className="text-xs text-primary-foreground/40">
-            Affiliate links earn us a commission at no extra cost to you.
+            Prices are indicative and may vary at the time of purchase.
           </p>
         </motion.div>
       </div>

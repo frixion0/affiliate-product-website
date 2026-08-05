@@ -31,8 +31,6 @@ function formatINR(usd: number): string {
   return '₹' + inr.toLocaleString('en-IN', { maximumFractionDigits: 0 });
 }
 
-const SLIDE_INTERVAL = 500; // 0.5 seconds
-
 export function ProductDetail({ product, isExpanded, onClose }: ProductDetailProps) {
   const images = product.media
     .filter((m) => m.type === 'image')
@@ -43,8 +41,6 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const touchStartRef = useRef<number | null>(null);
 
   const hasDiscount = product.comparePrice && product.comparePrice > product.price;
@@ -52,37 +48,12 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
     ? Math.round(((product.comparePrice! - product.price) / product.comparePrice!) * 100)
     : 0;
 
-  // Fix index bounds safely in useEffect (not during render)
   useEffect(() => {
     if (images.length > 0 && selectedImageIndex >= images.length) {
       setSelectedImageIndex(0);
     }
   }, [images.length, selectedImageIndex]);
 
-  // Auto-sliding carousel
-  const advanceSlide = useCallback(() => {
-    setSelectedImageIndex((prev) => (prev + 1) % Math.max(images.length, 1));
-  }, [images.length]);
-
-  useEffect(() => {
-    if (!isExpanded || showVideo || images.length <= 1 || isPaused) {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-      return;
-    }
-
-    timerRef.current = setInterval(advanceSlide, SLIDE_INTERVAL);
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    };
-  }, [isExpanded, showVideo, images.length, isPaused, advanceSlide]);
-
-  // Swipe handlers for touch
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartRef.current = e.touches[0].clientX;
   }, []);
@@ -93,10 +64,8 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
     if (Math.abs(diff) > 30) {
       setShowVideo(false);
       if (diff > 0) {
-        // Swipe left -> next
         setSelectedImageIndex((prev) => (prev + 1) % images.length);
       } else {
-        // Swipe right -> prev
         setSelectedImageIndex((prev) => (prev - 1 + images.length) % images.length);
       }
     }
@@ -146,8 +115,8 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
           transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
           className="col-span-full overflow-hidden"
         >
-          <div className="bg-card rounded-2xl border border-border shadow-lg mt-2 p-4 sm:p-6">
-            <div className="flex justify-end mb-3">
+          <div className="bg-card rounded-2xl border border-border shadow-lg mt-2 p-3 sm:p-6">
+            <div className="flex justify-end mb-2 sm:mb-3">
               <button
                 onClick={onClose}
                 className="p-2 rounded-full hover:bg-muted transition-colors"
@@ -158,15 +127,12 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-              {/* Media Gallery */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
               <div>
                 <div
                   className="relative aspect-[4/3] rounded-xl overflow-hidden bg-muted mb-3"
                   onTouchStart={handleTouchStart}
                   onTouchEnd={handleTouchEnd}
-                  onMouseEnter={() => setIsPaused(true)}
-                  onMouseLeave={() => setIsPaused(false)}
                   style={{ touchAction: 'pan-y pinch-zoom' }}
                 >
                   <AnimatePresence mode="wait">
@@ -215,7 +181,6 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
                     )}
                   </AnimatePresence>
 
-                  {/* Navigation arrows (only for images, not video) */}
                   {!showVideo && images.length > 1 && (
                     <>
                       <button
@@ -237,7 +202,6 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
                     </>
                   )}
 
-                  {/* Dot indicators */}
                   {!showVideo && images.length > 1 && (
                     <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
                       {images.map((_, i) => (
@@ -257,14 +221,13 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
                   )}
                 </div>
 
-                {/* Thumbnails + Video toggle */}
                 {(images.length > 1 || videos.length > 0) && (
                   <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
                     {images.map((img, i) => (
                       <button
                         key={img.id}
                         onClick={() => handleThumbnailClick(i)}
-                        className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors duration-150 ${
+                        className={`flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden border-2 transition-colors duration-150 ${
                           !showVideo && selectedImageIndex === i
                             ? 'border-primary'
                             : 'border-transparent hover:border-muted-foreground/30'
@@ -283,7 +246,7 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
                     {videos.length > 0 && (
                       <button
                         onClick={() => setShowVideo(true)}
-                        className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 flex items-center justify-center bg-muted transition-colors duration-150 ${
+                        className={`flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden border-2 flex items-center justify-center bg-muted transition-colors duration-150 ${
                           showVideo ? 'border-primary' : 'border-transparent hover:border-muted-foreground/30'
                         }`}
                         style={{ touchAction: 'manipulation' }}
@@ -295,7 +258,6 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
                 )}
               </div>
 
-              {/* Info */}
               <div className="flex flex-col">
                 {product.category && (
                   <span className="text-sm text-muted-foreground mb-1">
@@ -303,20 +265,19 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
                   </span>
                 )}
 
-                <h2 className="text-2xl font-bold mb-3">{product.name}</h2>
+                <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-3">{product.name}</h2>
 
-                {/* Dual currency pricing */}
                 <div className="mb-4">
-                  <div className="flex items-baseline gap-3 flex-wrap">
-                    <span className="text-3xl font-bold text-primary">
+                  <div className="flex items-baseline gap-2 sm:gap-3 flex-wrap">
+                    <span className="text-2xl sm:text-3xl font-bold text-primary">
                       ${product.price.toFixed(2)}
                     </span>
-                    <span className="text-lg font-semibold text-muted-foreground">
+                    <span className="text-base sm:text-lg font-semibold text-muted-foreground">
                       {formatINR(product.price)}
                     </span>
                   </div>
                   {hasDiscount && (
-                    <div className="flex items-center gap-2 mt-1">
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
                       <span className="text-sm text-muted-foreground line-through">
                         ${product.comparePrice!.toFixed(2)}
                       </span>
@@ -331,7 +292,7 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
                 </div>
 
                 {product.description && (
-                  <p className="text-muted-foreground leading-relaxed mb-6 flex-1">
+                  <p className="text-muted-foreground leading-relaxed mb-4 sm:mb-6 flex-1 text-sm sm:text-base">
                     {product.description}
                   </p>
                 )}
@@ -340,18 +301,14 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
                   size="lg"
                   onClick={handleBuyNow}
                   disabled={!product.affiliateLink}
-                  className="w-full sm:w-auto text-base font-semibold h-12 rounded-xl active:scale-[0.97] transition-transform duration-100"
+                  className="w-full sm:w-auto text-base font-semibold h-11 sm:h-12 rounded-xl active:scale-[0.97] transition-transform duration-100"
                   style={{ touchAction: 'manipulation' }}
                 >
                   <span className="flex items-center gap-2">
-                    <ExternalLink className="h-4.5 w-4.5" />
+                    <ExternalLink className="h-4 w-4" />
                     Buy Now
                   </span>
                 </Button>
-
-                <p className="text-xs text-muted-foreground mt-3">
-                  Affiliate link will open in a new tab
-                </p>
               </div>
             </div>
           </div>

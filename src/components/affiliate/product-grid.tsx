@@ -86,7 +86,7 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
 
   // Use CSS grid with auto-fill instead of manual column tracking
   return (
-    <section id="deals" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <section id="deals" className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
       {/* Filter Bar */}
       <div id="categories" className="space-y-4 mb-8">
         {/* Category pills */}
@@ -155,7 +155,7 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
 
       {/* Loading Skeletons */}
       {isLoading && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="space-y-3">
               <Skeleton className="aspect-[4/3] w-full rounded-xl" />
@@ -187,7 +187,7 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
 
       {/* Product Grid */}
       {!isLoading && !isError && products.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
           {products.map((product, index) => {
             const isExpanded = expandedProductId === product.id;
             return (
