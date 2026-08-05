@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, SlidersHorizontal, PackageOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ProductCard, type ProductCardData } from './product-card';
-import { ProductDetail } from './product-detail';
+import { ProductModal } from './product-detail';
 
 interface CategoryData {
   id: string;
@@ -30,17 +30,16 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
   const [category, setCategory] = useState<string | null>(null);
   const [sort, setSort] = useState('newest');
   const [page, setPage] = useState(1);
-  const [expandedProductId, setExpandedProductId] = useState<string | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<ProductCardData | null>(null);
   const [isFeatured, setIsFeatured] = useState(false);
 
-  // Reset page when filters change
   useEffect(() => {
     setPage(1);
   }, [category, searchQuery, sort, isFeatured]);
 
-  // Close detail when filters change
+  // Close modal on filter/page change
   useEffect(() => {
-    setExpandedProductId(null);
+    setSelectedProduct(null);
   }, [category, searchQuery, sort, page]);
 
   const { data: categoriesData } = useQuery<CategoryData[]>({
@@ -71,12 +70,13 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
   const products = data?.products ?? [];
   const totalPages = data?.pagination?.totalPages ?? 1;
 
-  const expandedProduct = expandedProductId
-    ? products.find((p) => p.id === expandedProductId) ?? null
-    : null;
-
   const handleSelect = useCallback((id: string) => {
-    setExpandedProductId((prev) => (prev === id ? null : id));
+    const p = products.find((pr) => pr.id === id);
+    if (p) setSelectedProduct(p);
+  }, [products]);
+
+  const handleClose = useCallback(() => {
+    setSelectedProduct(null);
   }, []);
 
   const handleCategoryClick = useCallback((slug: string | null, featured: boolean) => {
@@ -84,12 +84,10 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
     setIsFeatured(featured);
   }, []);
 
-  // Use CSS grid with auto-fill instead of manual column tracking
   return (
     <section id="deals" className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
       {/* Filter Bar */}
       <div id="categories" className="space-y-4 mb-8">
-        {/* Category pills */}
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => handleCategoryClick(null, false)}
@@ -131,7 +129,6 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
           ))}
         </div>
 
-        {/* Sort + count */}
         <div className="flex items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
             {isLoading ? 'Loading...' : `${data?.pagination?.total ?? 0} products found`}
@@ -153,7 +150,7 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
         </div>
       </div>
 
-      {/* Loading Skeletons */}
+      {/* Loading */}
       {isLoading && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
           {Array.from({ length: 8 }).map((_, i) => (
@@ -167,14 +164,14 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
         </div>
       )}
 
-      {/* Error State */}
+      {/* Error */}
       {isError && (
         <div className="text-center py-16">
           <p className="text-muted-foreground">Failed to load products. Please try again.</p>
         </div>
       )}
 
-      {/* Empty State */}
+      {/* Empty */}
       {!isLoading && !isError && products.length === 0 && (
         <div className="text-center py-16">
           <PackageOpen className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
@@ -188,24 +185,14 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
       {/* Product Grid */}
       {!isLoading && !isError && products.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
-          {products.map((product, index) => {
-            const isExpanded = expandedProductId === product.id;
-            return (
-              <div key={product.id}>
-                <ProductCard
-                  product={product}
-                  index={index}
-                  onSelect={handleSelect}
-                />
-                {/* Detail expands below the card's row using col-span-full */}
-                <ProductDetail
-                  product={product}
-                  isExpanded={isExpanded}
-                  onClose={() => setExpandedProductId(null)}
-                />
-              </div>
-            );
-          })}
+          {products.map((product, index) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              index={index}
+              onSelect={handleSelect}
+            />
+          ))}
         </div>
       )}
 
@@ -222,7 +209,6 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
             <Button
               key={p}
@@ -235,7 +221,6 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
               {p}
             </Button>
           ))}
-
           <Button
             variant="outline"
             size="sm"
@@ -248,6 +233,9 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
           </Button>
         </div>
       )}
+
+      {/* Full-screen Product Modal */}
+      <ProductModal product={selectedProduct} onClose={handleClose} />
     </section>
   );
 }
