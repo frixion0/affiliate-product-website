@@ -1,42 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { join } from 'path';
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    const files = formData.getAll('files') as File[];
-    const type = formData.get('type') || 'image';
+    const file = formData.get('file') as File | null;
 
-    if (!files.length) {
-      return NextResponse.json({ error: 'No files' }, { status: 400 });
+    if (!file) {
+      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    const results = [];
-    for (const file of files) {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
 
-      const ext = path.extname(file.name) || '.jpg';
-      const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`;
-      const subdir = type === 'video' ? 'videos' : 'images';
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads', subdir);
-
-      await mkdir(uploadDir, { recursive: true });
-      await writeFile(path.join(uploadDir, filename), buffer);
-
-      results.push({
-        url: `/uploads/${subdir}/${filename}`,
-        filename,
-        originalName: file.name,
-        size: file.size,
-        mimeType: file.type,
-      });
+    // On Vercel (read-only filesystem), return base64 data URL
+    if (process.env.VERCEL) {
+      const base64 = buffer.toString('base64');
+      const dataUrl = `data:${file.type};base64,${base64}`;
+      return NextResponse.json({ url: dataUrl, source: 'base64' });
     }
 
-    return NextResponse.json({ files: results });
+    // Local development: save to public/uploads
+    const uploadsDir = join(process.cwd(), 'public', 'uploads');
+    await mkdir(uploadsDir, { recursive: true });
+
+    const ext = file.name.split('.').pop() || 'bin';
+    const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const filepath = join(uploadsDir, filename);
+
+    await writeFile(filepath, buffer);
+
+    return NextResponse.json({ url: `/uploads/${filename}`, source: 'upload' });
   } catch (error) {
-    console.error('Upload error:', error);
-    return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
+    console.error('Error uploading file:', error);
+    return NextResponse.json({ error: 'Failed to upload file' }, { status: 500 });
   }
 }

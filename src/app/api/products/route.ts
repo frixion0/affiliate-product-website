@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const sort = searchParams.get('sort') || 'newest';
     const page = parseInt(searchParams.get('page') || '1', 10);
     const featured = searchParams.get('featured');
-    const limit = 12;
+    const limit = parseInt(searchParams.get('limit') || '12', 10);
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = {};
@@ -74,5 +74,54 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching products:', error);
     return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { name, description, price, comparePrice, affiliateLink, categoryId, featured, media } = body;
+
+    if (!name || !price || !affiliateLink) {
+      return NextResponse.json(
+        { error: 'Name, price, and affiliate link are required' },
+        { status: 400 }
+      );
+    }
+
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') + '-' + Date.now();
+
+    const product = await db.product.create({
+      data: {
+        name,
+        slug,
+        description: description || '',
+        price: parseFloat(price),
+        comparePrice: comparePrice ? parseFloat(comparePrice) : null,
+        affiliateLink,
+        categoryId: categoryId || null,
+        featured: featured || false,
+        media: {
+          create: (media || []).map((m: { url: string; type: string; source: string; sortOrder: number }, i: number) => ({
+            url: m.url,
+            type: m.type || 'image',
+            source: m.source || 'url',
+            sortOrder: m.sortOrder ?? i,
+          })),
+        },
+      },
+      include: {
+        category: { select: { name: true, slug: true } },
+        media: true,
+      },
+    });
+
+    return NextResponse.json({ product }, { status: 201 });
+  } catch (error) {
+    console.error('Error creating product:', error);
+    return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
   }
 }
