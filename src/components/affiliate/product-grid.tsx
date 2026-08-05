@@ -87,157 +87,157 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
   return (
     <>
       <section id="deals" className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
-      {/* Filter Bar */}
-      <div id="categories" className="space-y-4 mb-8">
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => handleCategoryClick(null, false)}
-            style={{ touchAction: 'manipulation' }}
-            className={`px-4 py-2 text-sm font-medium rounded-full transition-colors duration-150 ${
-              !category && !isFeatured
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
-            }`}
-          >
-            All Deals
-          </button>
-
-          <button
-            onClick={() => handleCategoryClick(null, true)}
-            style={{ touchAction: 'manipulation' }}
-            className={`px-4 py-2 text-sm font-medium rounded-full transition-colors duration-150 ${
-              isFeatured && !category
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
-            }`}
-          >
-            Featured
-          </button>
-
-          {categoriesData?.map((cat) => (
+        {/* Filter Bar */}
+        <div id="categories" className="space-y-4 mb-8">
+          <div className="flex flex-wrap gap-2">
             <button
-              key={cat.id}
-              onClick={() => handleCategoryClick(cat.slug, false)}
+              onClick={() => handleCategoryClick(null, false)}
               style={{ touchAction: 'manipulation' }}
               className={`px-4 py-2 text-sm font-medium rounded-full transition-colors duration-150 ${
-                category === cat.slug
+                !category && !isFeatured
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
               }`}
             >
-              {cat.name}
+              All Deals
             </button>
-          ))}
-        </div>
 
-        <div className="flex items-center justify-between gap-4">
-          <p className="text-sm text-muted-foreground">
-            {isLoading ? 'Loading...' : `${data?.pagination?.total ?? 0} products found`}
-          </p>
-          <div className="flex items-center gap-2">
-            <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
-            <Select value={sort} onValueChange={setSort}>
-              <SelectTrigger className="w-[160px] h-9 text-sm">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="newest">Newest</SelectItem>
-                <SelectItem value="price-asc">Price: Low to High</SelectItem>
-                <SelectItem value="price-desc">Price: High to Low</SelectItem>
-                <SelectItem value="popular">Most Popular</SelectItem>
-              </SelectContent>
-            </Select>
+            <button
+              onClick={() => handleCategoryClick(null, true)}
+              style={{ touchAction: 'manipulation' }}
+              className={`px-4 py-2 text-sm font-medium rounded-full transition-colors duration-150 ${
+                isFeatured && !category
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
+              }`}
+            >
+              Featured
+            </button>
+
+            {categoriesData?.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => handleCategoryClick(cat.slug, false)}
+                style={{ touchAction: 'manipulation' }}
+                className={`px-4 py-2 text-sm font-medium rounded-full transition-colors duration-150 ${
+                  category === cat.slug
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
+                }`}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-sm text-muted-foreground">
+              {isLoading ? 'Loading...' : `${data?.pagination?.total ?? 0} products found`}
+            </p>
+            <div className="flex items-center gap-2">
+              <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
+              <Select value={sort} onValueChange={setSort}>
+                <SelectTrigger className="w-[160px] h-9 text-sm">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Newest</SelectItem>
+                  <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                  <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                  <SelectItem value="popular">Most Popular</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Loading */}
-      {isLoading && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="space-y-3">
-              <Skeleton className="aspect-[4/3] w-full rounded-xl" />
-              <Skeleton className="h-4 w-20 rounded" />
-              <Skeleton className="h-4 w-full rounded" />
-              <Skeleton className="h-5 w-24 rounded" />
-            </div>
-          ))}
-        </div>
-      )}
+        {/* Loading */}
+        {isLoading && (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="space-y-3">
+                <Skeleton className="aspect-[4/3] w-full rounded-xl" />
+                <Skeleton className="h-4 w-20 rounded" />
+                <Skeleton className="h-4 w-full rounded" />
+                <Skeleton className="h-5 w-24 rounded" />
+              </div>
+            ))}
+          </div>
+        )}
 
-      {/* Error */}
-      {isError && (
-        <div className="text-center py-16">
-          <p className="text-muted-foreground">Failed to load products. Please try again.</p>
-        </div>
-      )}
+        {/* Error */}
+        {isError && (
+          <div className="text-center py-16">
+            <p className="text-muted-foreground">Failed to load products. Please try again.</p>
+          </div>
+        )}
 
-      {/* Empty */}
-      {!isLoading && !isError && products.length === 0 && (
-        <div className="text-center py-16">
-          <PackageOpen className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-1">No products found</h3>
-          <p className="text-muted-foreground text-sm">
-            Try adjusting your search or filter criteria
-          </p>
-        </div>
-      )}
+        {/* Empty */}
+        {!isLoading && !isError && products.length === 0 && (
+          <div className="text-center py-16">
+            <PackageOpen className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-1">No products found</h3>
+            <p className="text-muted-foreground text-sm">
+              Try adjusting your search or filter criteria
+            </p>
+          </div>
+        )}
 
-      {/* Product Grid */}
-      {!isLoading && !isError && products.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
-          {products.map((product, index) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              index={index}
-              onSelect={handleSelect}
-            />
-          ))}
-        </div>
-      )}
+        {/* Product Grid */}
+        {!isLoading && !isError && products.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+            {products.map((product, index) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                index={index}
+                onSelect={handleSelect}
+              />
+            ))}
+          </div>
+        )}
 
-      {/* Pagination */}
-      {!isLoading && !isError && totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-10">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page <= 1}
-            className="h-9 w-9 p-0"
-            style={{ touchAction: 'manipulation' }}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+        {/* Pagination */}
+        {!isLoading && !isError && totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-10">
             <Button
-              key={p}
-              variant={page === p ? 'default' : 'outline'}
+              variant="outline"
               size="sm"
-              onClick={() => setPage(p)}
-              className={`h-9 w-9 p-0 ${page === p ? 'font-semibold' : ''}`}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1}
+              className="h-9 w-9 p-0"
               style={{ touchAction: 'manipulation' }}
             >
-              {p}
+              <ChevronLeft className="h-4 w-4" />
             </Button>
-          ))}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page >= totalPages}
-            className="h-9 w-9 p-0"
-            style={{ touchAction: 'manipulation' }}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      )}
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <Button
+                key={p}
+                variant={page === p ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setPage(p)}
+                className={`h-9 w-9 p-0 ${page === p ? 'font-semibold' : ''}`}
+                style={{ touchAction: 'manipulation' }}
+              >
+                {p}
+              </Button>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+              className="h-9 w-9 p-0"
+              style={{ touchAction: 'manipulation' }}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+      </section>
 
-      {/* Full-screen Product Modal - rendered outside section via portal */}
+      {/* Modal rendered OUTSIDE the section, portaled to body */}
       <ProductModal product={selectedProduct} onClose={handleClose} />
-    </section>
     </>
   );
 }

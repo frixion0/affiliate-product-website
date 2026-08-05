@@ -40,3 +40,22 @@ Stage Summary:
 - Backdrop click and Escape key close the modal
 - Body scroll is locked when modal is open
 - Mobile: full-screen modal with no rounded corners; Desktop: centered with rounded corners and border
+
+---
+Task ID: 3
+Agent: Super Z (Main)
+Task: Fix modal crash - rebuild from scratch
+
+Work Log:
+- Root cause: AnimatePresence wrapped two direct children (backdrop + modal) without Fragment, causing runtime crash
+- Root cause 2: ProductModal was still rendered INSIDE the section tag despite Fragment wrapper
+- Completely rewrote product-detail.tsx from scratch: removed all framer-motion wrappers, uses plain CSS positioning instead
+- Uses createPortal to document.body with inline style zIndex 9999
+- Uses AnimatePresence only for inner image crossfade, not for the modal container itself
+- Rewrote product-grid.tsx: properly placed ProductModal outside the section closing tag, inside Fragment
+- Build verified successfully
+
+Stage Summary:
+- Modal is a simple, robust full-screen overlay with no complex animation wrappers
+- Portaled directly to document.body with z-index 9999
+- All features preserved: image gallery, video/YouTube, swipe gestures, thumbnails, $ and INR pricing, Buy Now button

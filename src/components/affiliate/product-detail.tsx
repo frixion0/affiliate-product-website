@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { X, ExternalLink, Play, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { ProductCardData } from './product-card';
@@ -32,137 +32,74 @@ function formatINR(usd: number): string {
 }
 
 export function ProductModal({ product, onClose }: ProductModalProps) {
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const touchStartRef = useRef<number | null>(null);
+  const touchRef = useRef<number | null>(null);
 
-  // SSR safety for portal
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => { setMounted(true); }, []);
 
-  // Lock body scroll when open
   useEffect(() => {
-    if (product) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
+    document.body.style.overflow = product ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
   }, [product]);
 
-  const productId = product?.id ?? '';
-
-  // Reset state when product changes
   useEffect(() => {
-    setSelectedImageIndex(0);
+    setSelectedIndex(0);
     setShowVideo(false);
-  }, [productId]);
+  }, [product?.id]);
 
-  // Close on Escape
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
+    const fn = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', fn);
+    return () => window.removeEventListener('keydown', fn);
   }, [onClose]);
 
-  const media = product?.media || [];
-  const images = media
-    .filter((m) => m.type === 'image')
-    .sort((a, b) => a.sortOrder - b.sortOrder);
-  const videos = media
-    .filter((m) => m.type === 'video')
-    .sort((a, b) => a.sortOrder - b.sortOrder);
+  const images = (product?.media || []).filter(m => m.type === 'image').sort((a, b) => a.sortOrder - b.sortOrder);
+  const videos = (product?.media || []).filter(m => m.type === 'video').sort((a, b) => a.sortOrder - b.sortOrder);
+  const hasDiscount = product ? (product.comparePrice != null && product.comparePrice > product.price) : false;
+  const discountPct = hasDiscount ? Math.round(((product!.comparePrice! - product!.price) / product!.comparePrice!) * 100) : 0;
 
-  const hasDiscount = product ? product.comparePrice !== null && product.comparePrice > product.price : false;
-  const discount = hasDiscount
-    ? Math.round(((product!.comparePrice! - product!.price) / product!.comparePrice!) * 100)
-    : 0;
+  const goPrev = useCallback(() => { setShowVideo(false); setSelectedIndex(i => (i - 1 + images.length) % images.length); }, [images.length]);
+  const goNext = useCallback(() => { setShowVideo(false); setSelectedIndex(i => (i + 1) % images.length); }, [images.length]);
+  const pickThumb = useCallback((i: number) => { setSelectedIndex(i); setShowVideo(false); }, []);
 
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartRef.current = e.touches[0].clientX;
-  }, []);
+  const onTouchStart = useCallback((e: React.TouchEvent) => { touchRef.current = e.touches[0].clientX; }, []);
+  const onTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchRef.current == null || images.length <= 1) return;
+    const diff = touchRef.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 30) { diff > 0 ? goNext() : goPrev(); }
+    touchRef.current = null;
+  }, [images.length, goNext, goPrev]);
 
-  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (touchStartRef.current === null || images.length <= 1) return;
-    const diff = touchStartRef.current - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 30) {
-      setShowVideo(false);
-      if (diff > 0) {
-        setSelectedImageIndex((prev) => (prev + 1) % images.length);
-      } else {
-        setSelectedImageIndex((prev) => (prev - 1 + images.length) % images.length);
-      }
-    }
-    touchStartRef.current = null;
-  }, [images.length]);
-
-  const handleThumbnailClick = useCallback((i: number) => {
-    setSelectedImageIndex(i);
-    setShowVideo(false);
-  }, []);
-
-  const handlePrev = useCallback(() => {
-    setShowVideo(false);
-    setSelectedImageIndex((prev) => (prev - 1 + images.length) % images.length);
-  }, [images.length]);
-
-  const handleNext = useCallback(() => {
-    setShowVideo(false);
-    setSelectedImageIndex((prev) => (prev + 1) % images.length);
-  }, [images.length]);
-
-  const handleBuyNow = useCallback(() => {
-    if (product?.affiliateLink) {
-      window.open(product.affiliateLink, '_blank', 'noopener,noreferrer');
-    }
+  const buyNow = useCallback(() => {
+    if (product?.affiliateLink) window.open(product.affiliateLink, '_blank', 'noopener,noreferrer');
   }, [product?.affiliateLink]);
 
   const currentVideo = showVideo && videos.length > 0 ? videos[0] : null;
-  const isYoutube =
-    currentVideo &&
-    (currentVideo.source === 'YouTube' ||
-      currentVideo.url.includes('youtube.com') ||
-      currentVideo.url.includes('youtu.be'));
-  const displayUrl =
-    isYoutube && currentVideo
-      ? `https://www.youtube.com/embed/${extractYouTubeId(currentVideo.url)}`
-      : null;
+  const isYT = currentVideo && (currentVideo.source === 'YouTube' || currentVideo.url.includes('youtube.com') || currentVideo.url.includes('youtu.be'));
+  const embedUrl = isYT && currentVideo ? `https://www.youtube.com/embed/${extractYouTubeId(currentVideo.url)}` : null;
 
-  // Don't render anything if no product or not mounted yet
   if (!product || !mounted) return null;
 
-  const modalContent = (
-    <AnimatePresence>
-      <motion.div
-        key={product.id}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.2 }}
-        className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
+  const modal = (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 9999 }}>
+      {/* Dark backdrop */}
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      <motion.div
-        key={`modal-${product.id}`}
-        initial={{ opacity: 0, y: 40, scale: 0.97 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 40, scale: 0.97 }}
-        transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-        className="fixed inset-0 z-[101] flex items-start sm:items-center justify-center p-0 sm:p-4 overflow-y-auto"
+      {/* Modal container - scrollable on mobile, centered on desktop */}
+      <div
+        className="absolute inset-0 flex items-start sm:items-center justify-center overflow-y-auto"
         onClick={onClose}
       >
         <div
-          className="relative w-full sm:max-w-3xl lg:max-w-4xl bg-background sm:rounded-2xl sm:shadow-2xl sm:border sm:border-border overflow-hidden my-0 sm:my-auto"
+          className="relative w-full sm:max-w-3xl lg:max-w-4xl bg-background sm:rounded-2xl sm:shadow-2xl sm:border sm:border-border overflow-hidden my-0 sm:my-8"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Close button */}
+          {/* Close X */}
           <button
             onClick={onClose}
             className="absolute top-3 right-3 z-20 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/60 transition-colors"
@@ -172,71 +109,55 @@ export function ProductModal({ product, onClose }: ProductModalProps) {
             <X className="h-5 w-5" />
           </button>
 
-          {/* Image / Video Gallery */}
+          {/* Image / Video area */}
           <div
             className="relative w-full aspect-[4/3] sm:aspect-video bg-muted"
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
             style={{ touchAction: 'pan-y pinch-zoom' }}
           >
-            <AnimatePresence mode="wait">
-              {showVideo && currentVideo ? (
-                <motion.div
-                  key="video"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                  className="w-full h-full"
-                >
-                  {isYoutube && displayUrl ? (
-                    <iframe
-                      src={`${displayUrl}?autoplay=1`}
-                      className="w-full h-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      title="Product video"
-                    />
-                  ) : (
-                    <video
-                      src={currentVideo.url}
-                      controls
-                      autoPlay
-                      className="w-full h-full object-contain"
-                    />
-                  )}
-                </motion.div>
-              ) : images.length > 0 ? (
-                <motion.img
-                  key={selectedImageIndex}
-                  src={images[selectedImageIndex]?.url}
-                  alt={`${product.name} - Image ${selectedImageIndex + 1}`}
+            {showVideo && currentVideo ? (
+              <div className="w-full h-full">
+                {isYT && embedUrl ? (
+                  <iframe
+                    src={`${embedUrl}?autoplay=1`}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    title="Product video"
+                  />
+                ) : (
+                  <video src={currentVideo.url} controls autoPlay className="w-full h-full object-contain" />
+                )}
+              </div>
+            ) : images.length > 0 ? (
+              <AnimatePresence mode="wait">
+                <img
+                  key={selectedIndex}
+                  src={images[selectedIndex]?.url}
+                  alt={`${product.name} - ${selectedIndex + 1}`}
                   className="w-full h-full object-contain bg-black/5"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15 }}
                   draggable={false}
                 />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                  <ExternalLink className="h-12 w-12" />
-                </div>
-              )}
-            </AnimatePresence>
+              </AnimatePresence>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                <ExternalLink className="h-12 w-12" />
+              </div>
+            )}
 
-            {/* Nav arrows */}
+            {/* Left / Right arrows */}
             {!showVideo && images.length > 1 && (
               <>
                 <button
-                  onClick={handlePrev}
+                  onClick={goPrev}
                   className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/50 transition-colors"
                   style={{ touchAction: 'manipulation' }}
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
                 <button
-                  onClick={handleNext}
+                  onClick={goNext}
                   className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/50 transition-colors"
                   style={{ touchAction: 'manipulation' }}
                 >
@@ -245,17 +166,15 @@ export function ProductModal({ product, onClose }: ProductModalProps) {
               </>
             )}
 
-            {/* Dots */}
+            {/* Dot indicators */}
             {!showVideo && images.length > 1 && (
               <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
                 {images.map((_, i) => (
                   <button
                     key={i}
-                    onClick={() => handleThumbnailClick(i)}
+                    onClick={() => pickThumb(i)}
                     className={`h-2 rounded-full transition-all duration-150 ${
-                      selectedImageIndex === i
-                        ? 'bg-white w-5'
-                        : 'bg-white/40 hover:bg-white/60'
+                      selectedIndex === i ? 'bg-white w-5' : 'bg-white/40 hover:bg-white/60'
                     }`}
                     style={{ touchAction: 'manipulation' }}
                   />
@@ -264,27 +183,21 @@ export function ProductModal({ product, onClose }: ProductModalProps) {
             )}
           </div>
 
-          {/* Thumbnails */}
+          {/* Thumbnail strip */}
           {(images.length > 1 || videos.length > 0) && (
             <div className="flex gap-2 px-4 py-3 bg-muted/30 overflow-x-auto scrollbar-hide">
               {images.map((img, i) => (
                 <button
                   key={img.id}
-                  onClick={() => handleThumbnailClick(i)}
+                  onClick={() => pickThumb(i)}
                   className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors duration-150 ${
-                    !showVideo && selectedImageIndex === i
+                    !showVideo && selectedIndex === i
                       ? 'border-primary'
                       : 'border-transparent hover:border-muted-foreground/30'
                   }`}
                   style={{ touchAction: 'manipulation' }}
                 >
-                  <img
-                    src={img.url}
-                    alt={`Thumbnail ${i + 1}`}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    decoding="async"
-                  />
+                  <img src={img.url} alt={`Thumb ${i + 1}`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 </button>
               ))}
               {videos.length > 0 && (
@@ -301,50 +214,35 @@ export function ProductModal({ product, onClose }: ProductModalProps) {
             </div>
           )}
 
-          {/* Product Info */}
+          {/* Product info + Buy button */}
           <div className="p-4 sm:p-6">
             {product.category && (
-              <span className="text-sm text-muted-foreground mb-1 block">
-                {product.category.name}
-              </span>
+              <span className="text-sm text-muted-foreground mb-1 block">{product.category.name}</span>
             )}
 
             <h2 className="text-xl sm:text-2xl font-bold mb-3">{product.name}</h2>
 
-            {/* Pricing */}
             <div className="mb-4">
               <div className="flex items-baseline gap-2 sm:gap-3 flex-wrap">
-                <span className="text-2xl sm:text-3xl font-bold text-primary">
-                  ${product.price.toFixed(2)}
-                </span>
-                <span className="text-base sm:text-lg font-semibold text-muted-foreground">
-                  {formatINR(product.price)}
-                </span>
+                <span className="text-2xl sm:text-3xl font-bold text-primary">${product.price.toFixed(2)}</span>
+                <span className="text-base sm:text-lg font-semibold text-muted-foreground">{formatINR(product.price)}</span>
               </div>
               {hasDiscount && (
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  <span className="text-sm text-muted-foreground line-through">
-                    ${product.comparePrice!.toFixed(2)}
-                  </span>
-                  <span className="text-sm text-muted-foreground line-through">
-                    {formatINR(product.comparePrice!)}
-                  </span>
-                  <span className="px-2 py-0.5 bg-destructive/10 text-destructive text-sm font-semibold rounded-md">
-                    -{discount}%
-                  </span>
+                  <span className="text-sm text-muted-foreground line-through">${product.comparePrice!.toFixed(2)}</span>
+                  <span className="text-sm text-muted-foreground line-through">{formatINR(product.comparePrice!)}</span>
+                  <span className="px-2 py-0.5 bg-destructive/10 text-destructive text-sm font-semibold rounded-md">-{discountPct}%</span>
                 </div>
               )}
             </div>
 
             {product.description && (
-              <p className="text-muted-foreground leading-relaxed mb-6 text-sm sm:text-base">
-                {product.description}
-              </p>
+              <p className="text-muted-foreground leading-relaxed mb-6 text-sm sm:text-base">{product.description}</p>
             )}
 
             <Button
               size="lg"
-              onClick={handleBuyNow}
+              onClick={buyNow}
               disabled={!product.affiliateLink}
               className="w-full text-base font-semibold h-12 sm:h-14 rounded-xl active:scale-[0.97] transition-transform duration-100"
               style={{ touchAction: 'manipulation' }}
@@ -356,13 +254,9 @@ export function ProductModal({ product, onClose }: ProductModalProps) {
             </Button>
           </div>
         </div>
-      </motion.div>
-    </AnimatePresence>
+      </div>
+    </div>
   );
 
-  // Portal to document.body so no parent container CSS can constrain it
-  if (typeof window !== 'undefined' && document.body) {
-    return createPortal(modalContent, document.body);
-  }
-  return modalContent;
+  return createPortal(modal, document.body);
 }
