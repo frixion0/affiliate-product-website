@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   title: "DealsHub — Best Deals, Curated",
   description: "Discover the best deals across top products. Curated daily with the best prices.",
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    icon: "/favicon.png",
   },
 };
 
