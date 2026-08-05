@@ -85,7 +85,8 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
   }, []);
 
   return (
-    <section id="deals" className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+    <>
+      <section id="deals" className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
       {/* Filter Bar */}
       <div id="categories" className="space-y-4 mb-8">
         <div className="flex flex-wrap gap-2">
@@ -234,8 +235,9 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
         </div>
       )}
 
-      {/* Full-screen Product Modal */}
+      {/* Full-screen Product Modal - rendered outside section via portal */}
       <ProductModal product={selectedProduct} onClose={handleClose} />
     </section>
+    </>
   );
 }

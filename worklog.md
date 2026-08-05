@@ -20,3 +20,23 @@ Stage Summary:
 - Database: SQLite via Prisma (free, no server needed)
 - Click tracking: total + unique clicks per product, session-based, with date/time logs
 - All verified working in browser
+
+---
+Task ID: 2
+Agent: Super Z (Main)
+Task: Convert product detail from in-place grid expansion to modal/popup window
+
+Work Log:
+- Rewrote product-detail.tsx as a full-screen modal overlay with React portal (createPortal to document.body)
+- Added SSR safety with mounted state before portal render
+- Set z-index to z-[100]/z-[101] to ensure modal sits above all other content
+- Moved ProductModal render outside the max-w-7xl constrained section in product-grid.tsx
+- Wrapped in Fragment so modal is sibling to section, not child
+- Build verified successfully
+
+Stage Summary:
+- Modal now renders as a true full-screen overlay via React portal at body level
+- No parent container CSS (max-width, padding, etc.) can constrain the modal
+- Backdrop click and Escape key close the modal
+- Body scroll is locked when modal is open
+- Mobile: full-screen modal with no rounded corners; Desktop: centered with rounded corners and border
