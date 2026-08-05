@@ -5,21 +5,14 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 function createPrismaClient() {
-  // Vercel Postgres injects POSTGRES_URL, but also support DATABASE_URL
-  const url = process.env.POSTGRES_URL || process.env.DATABASE_URL || ''
-
-  if (url.startsWith('postgresql://') || url.startsWith('postgres://')) {
-    // Neon serverless adapter for Vercel Postgres
-    const { neon } = require('@neondatabase/serverless')
-    const { PrismaNeon } = require('@prisma/adapter-neon')
-    const sql = neon(url)
-    const adapter = new PrismaNeon(sql)
-    return new PrismaClient({ adapter })
+  // Standard Prisma — reads DATABASE_URL from env (Vercel Postgres sets POSTGRES_URL)
+  // We redirect POSTGRES_URL to DATABASE_URL if DATABASE_URL isn't set
+  if (!process.env.DATABASE_URL && process.env.POSTGRES_URL) {
+    process.env.DATABASE_URL = process.env.POSTGRES_URL
   }
 
-  // Fallback for local dev (standard Prisma connection)
   return new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['query'] : [],
+    log: process.env.NODE_ENV === 'development' ? ['error'] : [],
   })
 }
 

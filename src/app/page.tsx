@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Navbar } from '@/components/affiliate/navbar';
 import { Hero } from '@/components/affiliate/hero';
@@ -23,11 +23,6 @@ function generateSessionId(): string {
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sessionId] = useState(() => generateSessionId());
-
-  // Auto-setup: ensure DB tables exist on first visit
-  useEffect(() => {
-    fetch('/api/setup').catch(() => {});
-  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

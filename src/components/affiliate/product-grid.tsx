@@ -43,6 +43,14 @@ export function ProductGrid({ searchQuery, sessionId }: ProductGridProps) {
   const [columns, setColumns] = useState(COLUMNS.mobile);
   const [expandedProductId, setExpandedProductId] = useState<string | null>(null);
   const [isFeatured, setIsFeatured] = useState(false);
+  const [dbReady, setDbReady] = useState(false);
+
+  // Wait for DB setup on first load
+  useEffect(() => {
+    fetch('/api/setup')
+      .then(() => setDbReady(true))
+      .catch(() => setDbReady(true)); // proceed anyway
+  }, []);
 
   // Responsive columns
   useEffect(() => {
@@ -66,6 +74,7 @@ export function ProductGrid({ searchQuery, sessionId }: ProductGridProps) {
     queryKey: ['categories'],
     queryFn: () => fetch('/api/categories').then((r) => r.json()),
     staleTime: 5 * 60 * 1000,
+    enabled: dbReady,
   });
 
   const { data, isLoading, isError } = useQuery<{ products: ProductCardData[]; pagination: { page: number; totalPages: number; total: number } }>({
@@ -77,8 +86,13 @@ export function ProductGrid({ searchQuery, sessionId }: ProductGridProps) {
       if (sort) params.set('sort', sort);
       if (page) params.set('page', String(page));
       if (isFeatured) params.set('featured', 'true');
-      return fetch(`/api/products?${params.toString()}`).then((r) => r.json());
+      return fetch(`/api/products?${params.toString()}`).then((r) => {
+        if (!r.ok) throw new Error('Failed to fetch');
+        return r.json();
+      });
     },
+    enabled: dbReady,
+    retry: 2,
   });
 
   const products = data?.products ?? [];
