@@ -46,11 +46,13 @@ export function ProductModal({ product, onClose }: ProductModalProps) {
     return () => { document.body.style.overflow = ''; };
   }, [product]);
 
+  const productId = product?.id ?? '';
+
   // Reset state when product changes
   useEffect(() => {
     setSelectedImageIndex(0);
     setShowVideo(false);
-  }, [product?.id]);
+  }, [productId]);
 
   // Close on Escape
   useEffect(() => {
@@ -63,10 +65,11 @@ export function ProductModal({ product, onClose }: ProductModalProps) {
 
   if (!product) return null;
 
-  const images = product.media
+  const media = product.media || [];
+  const images = media
     .filter((m) => m.type === 'image')
     .sort((a, b) => a.sortOrder - b.sortOrder);
-  const videos = product.media
+  const videos = media
     .filter((m) => m.type === 'video')
     .sort((a, b) => a.sortOrder - b.sortOrder);
 

@@ -100,7 +100,7 @@ function ImageCarousel({ images, productName }: { images: ProductMedia[]; produc
 }
 
 export const ProductCard = memo(function ProductCard({ product, index, onSelect }: ProductCardProps) {
-  const images = product.media
+  const images = (product.media || [])
     .filter((m) => m.type === 'image')
     .sort((a, b) => a.sortOrder - b.sortOrder);
   const hasDiscount = product.comparePrice && product.comparePrice > product.price;
