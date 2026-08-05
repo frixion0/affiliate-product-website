@@ -5,8 +5,8 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 function createPrismaClient() {
-  // Check if we have a postgres-compatible connection string
-  const url = process.env.DATABASE_URL || ''
+  // Vercel Postgres injects POSTGRES_URL, but also support DATABASE_URL
+  const url = process.env.POSTGRES_URL || process.env.DATABASE_URL || ''
 
   if (url.startsWith('postgresql://') || url.startsWith('postgres://')) {
     // Neon serverless adapter for Vercel Postgres
