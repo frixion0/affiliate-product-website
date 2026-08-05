@@ -26,30 +26,12 @@ interface ProductGridProps {
   searchQuery: string;
 }
 
-const COLUMNS = { mobile: 2, md: 3, lg: 4 };
-
-function getColumns(): number {
-  if (typeof window === 'undefined') return COLUMNS.mobile;
-  if (window.innerWidth >= 1024) return COLUMNS.lg;
-  if (window.innerWidth >= 768) return COLUMNS.md;
-  return COLUMNS.mobile;
-}
-
 export function ProductGrid({ searchQuery }: ProductGridProps) {
   const [category, setCategory] = useState<string | null>(null);
   const [sort, setSort] = useState('newest');
   const [page, setPage] = useState(1);
-  const [columns, setColumns] = useState(COLUMNS.mobile);
   const [expandedProductId, setExpandedProductId] = useState<string | null>(null);
   const [isFeatured, setIsFeatured] = useState(false);
-
-  // Responsive columns
-  useEffect(() => {
-    const updateColumns = () => setColumns(getColumns());
-    updateColumns();
-    window.addEventListener('resize', updateColumns);
-    return () => window.removeEventListener('resize', updateColumns);
-  }, []);
 
   // Reset page when filters change
   useEffect(() => {
@@ -67,7 +49,10 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
     staleTime: 5 * 60 * 1000,
   });
 
-  const { data, isLoading, isError } = useQuery<{ products: ProductCardData[]; pagination: { page: number; totalPages: number; total: number } }>({
+  const { data, isLoading, isError } = useQuery<{
+    products: ProductCardData[];
+    pagination: { page: number; totalPages: number; total: number };
+  }>({
     queryKey: ['products', { category, search: searchQuery, sort, page, featured: isFeatured }],
     queryFn: () => {
       const params = new URLSearchParams();
@@ -86,45 +71,20 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
   const products = data?.products ?? [];
   const totalPages = data?.pagination?.totalPages ?? 1;
 
-  // Calculate which row index each product belongs to
-  const getRowIndex = useCallback(
-    (productIndex: number) => Math.floor(productIndex / columns),
-    [columns]
-  );
-
-  const expandedIndex = useMemo(() => {
-    if (!expandedProductId) return -1;
-    return products.findIndex((p) => p.id === expandedProductId);
-  }, [expandedProductId, products]);
-
-  const expandedRow = expandedIndex >= 0 ? getRowIndex(expandedIndex) : -1;
+  const expandedProduct = expandedProductId
+    ? products.find((p) => p.id === expandedProductId) ?? null
+    : null;
 
   const handleSelect = useCallback((id: string) => {
     setExpandedProductId((prev) => (prev === id ? null : id));
   }, []);
 
-  // Build rows for rendering
-  const rows = useMemo(() => {
-    const result: Array<{ type: 'products'; indices: number[] } | { type: 'detail' }> = [];
-    for (let i = 0; i < products.length; i += columns) {
-      const rowIndices = [];
-      for (let j = i; j < Math.min(i + columns, products.length); j++) {
-        rowIndices.push(j);
-      }
-      result.push({ type: 'products', indices: rowIndices });
+  const handleCategoryClick = useCallback((slug: string | null, featured: boolean) => {
+    setCategory(slug);
+    setIsFeatured(featured);
+  }, []);
 
-      const currentRow = getRowIndex(i);
-      if (currentRow === expandedRow && expandedProductId) {
-        result.push({ type: 'detail' });
-      }
-    }
-    return result;
-  }, [products, columns, expandedRow, expandedProductId, getRowIndex]);
-
-  const expandedProduct = expandedProductId
-    ? products.find((p) => p.id === expandedProductId) ?? null
-    : null;
-
+  // Use CSS grid with auto-fill instead of manual column tracking
   return (
     <section id="deals" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Filter Bar */}
@@ -132,8 +92,9 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
         {/* Category pills */}
         <div className="flex flex-wrap gap-2">
           <button
-            onClick={() => { setCategory(null); setIsFeatured(false); }}
-            className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+            onClick={() => handleCategoryClick(null, false)}
+            style={{ touchAction: 'manipulation' }}
+            className={`px-4 py-2 text-sm font-medium rounded-full transition-colors duration-150 ${
               !category && !isFeatured
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
@@ -143,21 +104,23 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
           </button>
 
           <button
-            onClick={() => { setCategory(null); setIsFeatured(true); }}
-            className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+            onClick={() => handleCategoryClick(null, true)}
+            style={{ touchAction: 'manipulation' }}
+            className={`px-4 py-2 text-sm font-medium rounded-full transition-colors duration-150 ${
               isFeatured && !category
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
             }`}
           >
-            ✨ Featured
+            Featured
           </button>
 
           {categoriesData?.map((cat) => (
             <button
               key={cat.id}
-              onClick={() => { setCategory(cat.slug); setIsFeatured(false); }}
-              className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+              onClick={() => handleCategoryClick(cat.slug, false)}
+              style={{ touchAction: 'manipulation' }}
+              className={`px-4 py-2 text-sm font-medium rounded-full transition-colors duration-150 ${
                 category === cat.slug
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80'
@@ -222,51 +185,27 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
         </div>
       )}
 
-      {/* Product Grid with Expand-in-Place */}
+      {/* Product Grid */}
       {!isLoading && !isError && products.length > 0 && (
-        <div>
-          <div
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"
-            style={{
-              gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
-            }}
-          >
-            {rows.map((row, rowIdx) => {
-              if (row.type === 'products') {
-                return (
-                  <div
-                    key={`row-${rowIdx}`}
-                    className="contents"
-                  >
-                    {row.indices.map((prodIdx) => (
-                      <ProductCard
-                        key={products[prodIdx].id}
-                        product={products[prodIdx]}
-                        index={prodIdx}
-                        onSelect={handleSelect}
-                      />
-                    ))}
-                  </div>
-                );
-              }
-
-              // Detail row - render as col-span-full within the grid
-              return (
-                <div
-                  key={`detail-${rowIdx}`}
-                  className="col-span-full"
-                >
-                  {expandedProduct && (
-                    <ProductDetail
-                      product={expandedProduct}
-                      isExpanded={true}
-                      onClose={() => setExpandedProductId(null)}
-                    />
-                  )}
-                </div>
-              );
-            })}
-          </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          {products.map((product, index) => {
+            const isExpanded = expandedProductId === product.id;
+            return (
+              <div key={product.id}>
+                <ProductCard
+                  product={product}
+                  index={index}
+                  onSelect={handleSelect}
+                />
+                {/* Detail expands below the card's row using col-span-full */}
+                <ProductDetail
+                  product={product}
+                  isExpanded={isExpanded}
+                  onClose={() => setExpandedProductId(null)}
+                />
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -279,6 +218,7 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page <= 1}
             className="h-9 w-9 p-0"
+            style={{ touchAction: 'manipulation' }}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -290,6 +230,7 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
               size="sm"
               onClick={() => setPage(p)}
               className={`h-9 w-9 p-0 ${page === p ? 'font-semibold' : ''}`}
+              style={{ touchAction: 'manipulation' }}
             >
               {p}
             </Button>
@@ -301,6 +242,7 @@ export function ProductGrid({ searchQuery }: ProductGridProps) {
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page >= totalPages}
             className="h-9 w-9 p-0"
+            style={{ touchAction: 'manipulation' }}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>

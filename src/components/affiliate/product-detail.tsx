@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ExternalLink, Play } from 'lucide-react';
+import { X, ExternalLink, Play, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { ProductCardData } from './product-card';
 
@@ -26,26 +26,114 @@ function extractYouTubeId(url: string): string | null {
   return null;
 }
 
+function formatINR(usd: number): string {
+  const inr = usd * 83.5;
+  return '₹' + inr.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+}
+
+const SLIDE_INTERVAL = 500; // 0.5 seconds
+
 export function ProductDetail({ product, isExpanded, onClose }: ProductDetailProps) {
-  const images = product.media.filter((m) => m.type === 'image').sort((a, b) => a.sortOrder - b.sortOrder);
-  const videos = product.media.filter((m) => m.type === 'video').sort((a, b) => a.sortOrder - b.sortOrder);
+  const images = product.media
+    .filter((m) => m.type === 'image')
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+  const videos = product.media
+    .filter((m) => m.type === 'video')
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const touchStartRef = useRef<number | null>(null);
 
   const hasDiscount = product.comparePrice && product.comparePrice > product.price;
   const discount = hasDiscount
     ? Math.round(((product.comparePrice! - product.price) / product.comparePrice!) * 100)
     : 0;
 
-  if (images.length > 0 && selectedImageIndex >= images.length) {
-    setSelectedImageIndex(0);
-  }
+  // Fix index bounds safely in useEffect (not during render)
+  useEffect(() => {
+    if (images.length > 0 && selectedImageIndex >= images.length) {
+      setSelectedImageIndex(0);
+    }
+  }, [images.length, selectedImageIndex]);
+
+  // Auto-sliding carousel
+  const advanceSlide = useCallback(() => {
+    setSelectedImageIndex((prev) => (prev + 1) % Math.max(images.length, 1));
+  }, [images.length]);
+
+  useEffect(() => {
+    if (!isExpanded || showVideo || images.length <= 1 || isPaused) {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      return;
+    }
+
+    timerRef.current = setInterval(advanceSlide, SLIDE_INTERVAL);
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [isExpanded, showVideo, images.length, isPaused, advanceSlide]);
+
+  // Swipe handlers for touch
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartRef.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStartRef.current === null || images.length <= 1) return;
+    const diff = touchStartRef.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 30) {
+      setShowVideo(false);
+      if (diff > 0) {
+        // Swipe left -> next
+        setSelectedImageIndex((prev) => (prev + 1) % images.length);
+      } else {
+        // Swipe right -> prev
+        setSelectedImageIndex((prev) => (prev - 1 + images.length) % images.length);
+      }
+    }
+    touchStartRef.current = null;
+  }, [images.length]);
+
+  const handleThumbnailClick = useCallback((i: number) => {
+    setSelectedImageIndex(i);
+    setShowVideo(false);
+  }, []);
+
+  const handlePrev = useCallback(() => {
+    setShowVideo(false);
+    setSelectedImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  }, [images.length]);
+
+  const handleNext = useCallback(() => {
+    setShowVideo(false);
+    setSelectedImageIndex((prev) => (prev + 1) % images.length);
+  }, [images.length]);
+
+  const handleBuyNow = useCallback(() => {
+    if (product.affiliateLink) {
+      window.open(product.affiliateLink, '_blank', 'noopener,noreferrer');
+    }
+  }, [product.affiliateLink]);
 
   const currentVideo = showVideo && videos.length > 0 ? videos[0] : null;
-  const isYoutube = currentVideo && (currentVideo.source === 'YouTube' || currentVideo.url.includes('youtube.com') || currentVideo.url.includes('youtu.be'));
-  const displayUrl = isYoutube && currentVideo
-    ? `https://www.youtube.com/embed/${extractYouTubeId(currentVideo.url)}`
-    : null;
+  const isYoutube =
+    currentVideo &&
+    (currentVideo.source === 'YouTube' ||
+      currentVideo.url.includes('youtube.com') ||
+      currentVideo.url.includes('youtu.be'));
+  const displayUrl =
+    isYoutube && currentVideo
+      ? `https://www.youtube.com/embed/${extractYouTubeId(currentVideo.url)}`
+      : null;
 
   return (
     <AnimatePresence>
@@ -55,7 +143,7 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
-          transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+          transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
           className="col-span-full overflow-hidden"
         >
           <div className="bg-card rounded-2xl border border-border shadow-lg mt-2 p-4 sm:p-6">
@@ -64,6 +152,7 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
                 onClick={onClose}
                 className="p-2 rounded-full hover:bg-muted transition-colors"
                 aria-label="Close details"
+                style={{ touchAction: 'manipulation' }}
               >
                 <X className="h-5 w-5" />
               </button>
@@ -72,7 +161,14 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
               {/* Media Gallery */}
               <div>
-                <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-muted mb-3">
+                <div
+                  className="relative aspect-[4/3] rounded-xl overflow-hidden bg-muted mb-3"
+                  onTouchStart={handleTouchStart}
+                  onTouchEnd={handleTouchEnd}
+                  onMouseEnter={() => setIsPaused(true)}
+                  onMouseLeave={() => setIsPaused(false)}
+                  style={{ touchAction: 'pan-y pinch-zoom' }}
+                >
                   <AnimatePresence mode="wait">
                     {showVideo && currentVideo ? (
                       <motion.div
@@ -80,6 +176,7 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
                         className="w-full h-full"
                       >
                         {isYoutube && displayUrl ? (
@@ -105,10 +202,11 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
                         src={images[selectedImageIndex]?.url}
                         alt={`${product.name} - Image ${selectedImageIndex + 1}`}
                         className="w-full h-full object-cover"
-                        initial={{ opacity: 0, scale: 1.02 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.98 }}
-                        transition={{ duration: 0.2 }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                        draggable={false}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-muted-foreground">
@@ -116,38 +214,85 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
                       </div>
                     )}
                   </AnimatePresence>
+
+                  {/* Navigation arrows (only for images, not video) */}
+                  {!showVideo && images.length > 1 && (
+                    <>
+                      <button
+                        onClick={handlePrev}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/30 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/50 transition-colors duration-150"
+                        style={{ touchAction: 'manipulation' }}
+                        aria-label="Previous image"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={handleNext}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/30 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/50 transition-colors duration-150"
+                        style={{ touchAction: 'manipulation' }}
+                        aria-label="Next image"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    </>
+                  )}
+
+                  {/* Dot indicators */}
+                  {!showVideo && images.length > 1 && (
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+                      {images.map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => handleThumbnailClick(i)}
+                          className={`w-2 h-2 rounded-full transition-all duration-150 ${
+                            selectedImageIndex === i
+                              ? 'bg-white w-4'
+                              : 'bg-white/50 hover:bg-white/70'
+                          }`}
+                          style={{ touchAction: 'manipulation' }}
+                          aria-label={`Go to image ${i + 1}`}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Thumbnails + Video toggle */}
-                <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-                  {images.map((img, i) => (
-                    <button
-                      key={img.id}
-                      onClick={() => { setSelectedImageIndex(i); setShowVideo(false); }}
-                      className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
-                        !showVideo && selectedImageIndex === i
-                          ? 'border-primary'
-                          : 'border-transparent hover:border-muted-foreground/30'
-                      }`}
-                    >
-                      <img
-                        src={img.url}
-                        alt={`Thumbnail ${i + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
-                  {videos.length > 0 && (
-                    <button
-                      onClick={() => setShowVideo(true)}
-                      className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 flex items-center justify-center bg-muted transition-colors ${
-                        showVideo ? 'border-primary' : 'border-transparent hover:border-muted-foreground/30'
-                      }`}
-                    >
-                      <Play className="h-5 w-5 text-muted-foreground" />
-                    </button>
-                  )}
-                </div>
+                {(images.length > 1 || videos.length > 0) && (
+                  <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+                    {images.map((img, i) => (
+                      <button
+                        key={img.id}
+                        onClick={() => handleThumbnailClick(i)}
+                        className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors duration-150 ${
+                          !showVideo && selectedImageIndex === i
+                            ? 'border-primary'
+                            : 'border-transparent hover:border-muted-foreground/30'
+                        }`}
+                        style={{ touchAction: 'manipulation' }}
+                      >
+                        <img
+                          src={img.url}
+                          alt={`Thumbnail ${i + 1}`}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </button>
+                    ))}
+                    {videos.length > 0 && (
+                      <button
+                        onClick={() => setShowVideo(true)}
+                        className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 flex items-center justify-center bg-muted transition-colors duration-150 ${
+                          showVideo ? 'border-primary' : 'border-transparent hover:border-muted-foreground/30'
+                        }`}
+                        style={{ touchAction: 'manipulation' }}
+                      >
+                        <Play className="h-5 w-5 text-muted-foreground" />
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Info */}
@@ -160,19 +305,28 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
 
                 <h2 className="text-2xl font-bold mb-3">{product.name}</h2>
 
-                <div className="flex items-baseline gap-3 mb-4">
-                  <span className="text-3xl font-bold text-primary">
-                    ${product.price.toFixed(2)}
-                  </span>
+                {/* Dual currency pricing */}
+                <div className="mb-4">
+                  <div className="flex items-baseline gap-3 flex-wrap">
+                    <span className="text-3xl font-bold text-primary">
+                      ${product.price.toFixed(2)}
+                    </span>
+                    <span className="text-lg font-semibold text-muted-foreground">
+                      {formatINR(product.price)}
+                    </span>
+                  </div>
                   {hasDiscount && (
-                    <>
-                      <span className="text-lg text-muted-foreground line-through">
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-sm text-muted-foreground line-through">
                         ${product.comparePrice!.toFixed(2)}
+                      </span>
+                      <span className="text-sm text-muted-foreground line-through">
+                        {formatINR(product.comparePrice!)}
                       </span>
                       <span className="px-2 py-0.5 bg-destructive/10 text-destructive text-sm font-semibold rounded-md">
                         -{discount}%
                       </span>
-                    </>
+                    </div>
                   )}
                 </div>
 
@@ -184,8 +338,10 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
 
                 <Button
                   size="lg"
-                  onClick={() => window.open(product.affiliateLink, '_blank')}
-                  className="w-full sm:w-auto text-base font-semibold h-12 rounded-xl"
+                  onClick={handleBuyNow}
+                  disabled={!product.affiliateLink}
+                  className="w-full sm:w-auto text-base font-semibold h-12 rounded-xl active:scale-[0.97] transition-transform duration-100"
+                  style={{ touchAction: 'manipulation' }}
                 >
                   <span className="flex items-center gap-2">
                     <ExternalLink className="h-4.5 w-4.5" />

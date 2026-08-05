@@ -120,7 +120,10 @@
 
 @layer base {
   * { @apply border-border outline-ring/50; }
-  body { @apply bg-background text-foreground; }
+  html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+  body { @apply bg-background text-foreground; touch-action: manipulation; }
+  button, a, [role='button'] { touch-action: manipulation; }
+  img { content-visibility: auto; }
 }
 
 ::-webkit-scrollbar { width: 6px; }
