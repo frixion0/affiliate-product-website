@@ -5,10 +5,17 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 function createPrismaClient() {
-  // Standard Prisma — reads DATABASE_URL from env (Vercel Postgres sets POSTGRES_URL)
-  // We redirect POSTGRES_URL to DATABASE_URL if DATABASE_URL isn't set
-  if (!process.env.DATABASE_URL && process.env.POSTGRES_URL) {
-    process.env.DATABASE_URL = process.env.POSTGRES_URL
+  // Vercel Postgres auto-injects POSTGRES_PRISMA_URL (pooled, Prisma-compatible)
+  // Fall back to DATABASE_URL for other platforms
+  const url = process.env.POSTGRES_PRISMA_URL || process.env.DATABASE_URL || ''
+
+  if (!url) {
+    console.warn('No database URL found. Set POSTGRES_PRISMA_URL or DATABASE_URL.')
+  }
+
+  // Map to DATABASE_URL for Prisma to pick up
+  if (!process.env.DATABASE_URL && url) {
+    process.env.DATABASE_URL = url
   }
 
   return new PrismaClient({
