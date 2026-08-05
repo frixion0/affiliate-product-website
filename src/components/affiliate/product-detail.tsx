@@ -42,7 +42,8 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
   }
 
   const currentVideo = showVideo && videos.length > 0 ? videos[0] : null;
-  const displayUrl = currentVideo?.source === 'YouTube' && currentVideo?.url
+  const isYoutube = currentVideo && (currentVideo.source === 'YouTube' || currentVideo.url.includes('youtube.com') || currentVideo.url.includes('youtu.be'));
+  const displayUrl = isYoutube && currentVideo
     ? `https://www.youtube.com/embed/${extractYouTubeId(currentVideo.url)}`
     : null;
 
@@ -81,7 +82,7 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
                         exit={{ opacity: 0 }}
                         className="w-full h-full"
                       >
-                        {currentVideo.source === 'YouTube' && displayUrl ? (
+                        {isYoutube && displayUrl ? (
                           <iframe
                             src={`${displayUrl}?autoplay=1`}
                             className="w-full h-full"
@@ -98,10 +99,10 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
                           />
                         )}
                       </motion.div>
-                    ) : currentImages.length > 0 ? (
+                    ) : images.length > 0 ? (
                       <motion.img
                         key={selectedImageIndex}
-                        src={currentImages[selectedImageIndex]?.url}
+                        src={images[selectedImageIndex]?.url}
                         alt={`${product.name} - Image ${selectedImageIndex + 1}`}
                         className="w-full h-full object-cover"
                         initial={{ opacity: 0, scale: 1.02 }}
@@ -119,7 +120,7 @@ export function ProductDetail({ product, isExpanded, onClose }: ProductDetailPro
 
                 {/* Thumbnails + Video toggle */}
                 <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-                  {currentImages.map((img, i) => (
+                  {images.map((img, i) => (
                     <button
                       key={img.id}
                       onClick={() => { setSelectedImageIndex(i); setShowVideo(false); }}

@@ -5,33 +5,41 @@ import { join } from 'path';
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    const file = formData.get('file') as File | null;
 
-    if (!file) {
+    // Support both 'file' (single) and 'files' (multiple) field names
+    const file = formData.get('file') as File | null;
+    const files = formData.getAll('files') as File[];
+    const allFiles = file ? [file, ...files] : files;
+
+    if (allFiles.length === 0) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    // On Vercel (read-only filesystem), return base64 data URL
+    // On Vercel (read-only filesystem), return base64 data URLs
     if (process.env.VERCEL) {
-      const base64 = buffer.toString('base64');
-      const dataUrl = `data:${file.type};base64,${base64}`;
-      return NextResponse.json({ url: dataUrl, source: 'base64' });
+      const results = await Promise.all(allFiles.map(async (f) => {
+        const bytes = await f.arrayBuffer();
+        const base64 = Buffer.from(bytes).toString('base64');
+        return { url: `data:${f.type};base64,${base64}`, source: 'base64' };
+      }));
+      return NextResponse.json({ files: results });
     }
 
     // Local development: save to public/uploads
     const uploadsDir = join(process.cwd(), 'public', 'uploads');
     await mkdir(uploadsDir, { recursive: true });
 
-    const ext = file.name.split('.').pop() || 'bin';
-    const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-    const filepath = join(uploadsDir, filename);
+    const results = await Promise.all(allFiles.map(async (f) => {
+      const bytes = await f.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const ext = f.name.split('.').pop() || 'bin';
+      const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const filepath = join(uploadsDir, filename);
+      await writeFile(filepath, buffer);
+      return { url: `/uploads/${filename}`, source: 'upload' };
+    }));
 
-    await writeFile(filepath, buffer);
-
-    return NextResponse.json({ url: `/uploads/${filename}`, source: 'upload' });
+    return NextResponse.json({ files: results });
   } catch (error) {
     console.error('Error uploading file:', error);
     return NextResponse.json({ error: 'Failed to upload file' }, { status: 500 });
