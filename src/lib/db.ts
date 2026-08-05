@@ -1,26 +1,23 @@
 import { PrismaClient } from '@prisma/client'
-import { PrismaLibSql } from '@prisma/adapter-libsql'
-import { createClient } from '@libsql/client'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
 function createPrismaClient() {
-  const directUrl = process.env.DIRECT_URL || process.env.DATABASE_URL
-  const url = process.env.DATABASE_URL
+  // Check if we have a postgres-compatible connection string
+  const url = process.env.DATABASE_URL || ''
 
-  // If DIRECT_URL is set (Turso), use the libSQL adapter for edge compatibility
-  if (process.env.DIRECT_URL) {
-    const libsql = createClient({
-      url: directUrl,
-      authToken: process.env.TURSO_AUTH_TOKEN || undefined,
-    })
-    const adapter = new PrismaLibSql(libsql)
+  if (url.startsWith('postgresql://') || url.startsWith('postgres://')) {
+    // Neon serverless adapter for Vercel Postgres
+    const { neon } = require('@neondatabase/serverless')
+    const { PrismaNeon } = require('@prisma/adapter-neon')
+    const sql = neon(url)
+    const adapter = new PrismaNeon(sql)
     return new PrismaClient({ adapter })
   }
 
-  // Fallback to local SQLite
+  // Fallback for local dev (standard Prisma connection)
   return new PrismaClient({
     log: process.env.NODE_ENV === 'development' ? ['query'] : [],
   })
