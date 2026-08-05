@@ -1,5 +1,34 @@
-import { db } from '@/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
+import { ghUpdateJSON } from '@/lib/github';
+
+interface ProductMedia {
+  id: string;
+  url: string;
+  type: string;
+  source: string;
+  sortOrder: number;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  price: number;
+  comparePrice: number | null;
+  affiliateLink: string;
+  categoryId: string | null;
+  featured: boolean;
+  clickCount: number;
+  uniqueClickCount: number;
+  createdAt: string;
+  updatedAt: string;
+  media: ProductMedia[];
+}
+
+function generateId(): string {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
 
 export async function PUT(
   request: NextRequest,
@@ -10,14 +39,15 @@ export async function PUT(
     const body = await request.json();
     const { name, description, price, comparePrice, affiliateLink, categoryId, featured, media } = body;
 
-    // If media is provided, delete old and recreate
-    if (media !== undefined) {
-      await db.productMedia.deleteMany({ where: { productId: id } });
-    }
+    let updatedProduct: Product | null = null;
 
-    const product = await db.product.update({
-      where: { id },
-      data: {
+    await ghUpdateJSON<Product[]>('data/products.json', (products) => {
+      const idx = products.findIndex((p) => p.id === id);
+      if (idx === -1) throw new Error('Product not found');
+
+      const existing = products[idx];
+      updatedProduct = {
+        ...existing,
         ...(name !== undefined && { name }),
         ...(description !== undefined && { description }),
         ...(price !== undefined && { price: parseFloat(price) }),
@@ -26,43 +56,51 @@ export async function PUT(
         ...(categoryId !== undefined && { categoryId: categoryId || null }),
         ...(featured !== undefined && { featured }),
         ...(media !== undefined && {
-          media: {
-            create: (media || []).map((m: { url: string; type: string; source: string; sortOrder: number }, i: number) => ({
-              url: m.url,
-              type: m.type || 'image',
-              source: m.source || 'url',
-              sortOrder: m.sortOrder ?? i,
-            })),
-          },
+          media: (media || []).map((m: { url: string; type?: string; source?: string; sortOrder?: number }, i: number) => ({
+            id: generateId(),
+            url: m.url,
+            type: m.type || 'image',
+            source: m.source || 'url',
+            sortOrder: m.sortOrder ?? i,
+          })),
         }),
-      },
-      include: {
-        category: { select: { name: true, slug: true } },
-        media: true,
-      },
-    });
+        updatedAt: new Date().toISOString(),
+      };
 
-    return NextResponse.json({ product });
+      const copy = [...products];
+      copy[idx] = updatedProduct;
+      return copy;
+    }, `Update product: ${name || id}`);
+
+    return NextResponse.json({ product: updatedProduct });
   } catch (error) {
+    if (error instanceof Error && error.message === 'Product not found') {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
     console.error('Error updating product:', error);
     return NextResponse.json({ error: 'Failed to update product' }, { status: 500 });
   }
 }
 
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
 
-    // Delete media first (cascade should handle this, but be explicit)
-    await db.productMedia.deleteMany({ where: { productId: id } });
-    await db.clickLog.deleteMany({ where: { productId: id } });
-    await db.product.delete({ where: { id } });
+    await ghUpdateJSON<Product[]>('data/products.json', (products) => {
+      if (!products.some((p) => p.id === id)) {
+        throw new Error('Product not found');
+      }
+      return products.filter((p) => p.id !== id);
+    }, `Delete product: ${id}`);
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    if (error instanceof Error && error.message === 'Product not found') {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
     console.error('Error deleting product:', error);
     return NextResponse.json({ error: 'Failed to delete product' }, { status: 500 });
   }

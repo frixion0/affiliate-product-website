@@ -1,5 +1,45 @@
-import { db } from '@/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
+import { readLocalJSON, ghUpdateJSON } from '@/lib/github';
+
+interface ProductMedia {
+  id: string;
+  url: string;
+  type: string;
+  source: string;
+  sortOrder: number;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  price: number;
+  comparePrice: number | null;
+  affiliateLink: string;
+  categoryId: string | null;
+  featured: boolean;
+  clickCount: number;
+  uniqueClickCount: number;
+  createdAt: string;
+  updatedAt: string;
+  media: ProductMedia[];
+  category?: { name: string; slug: string } | null;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+function generateId(): string {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+function generateSlug(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,58 +52,60 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '12', 10);
     const skip = (page - 1) * limit;
 
-    const where: Record<string, unknown> = {};
+    let products = readLocalJSON<Product[]>('data/products.json');
+    const categories = readLocalJSON<Category[]>('data/categories.json');
+    const categoryMap = new Map(categories.map((c) => [c.id, c]));
 
+    // Filter by category slug
     if (category) {
-      where.category = { slug: category };
+      const cat = categories.find((c) => c.slug === category);
+      if (cat) {
+        products = products.filter((p) => p.categoryId === cat.id);
+      }
     }
 
+    // Filter by search
     if (search) {
-      where.name = { contains: search };
+      const q = search.toLowerCase();
+      products = products.filter((p) => p.name.toLowerCase().includes(q));
     }
 
+    // Filter by featured
     if (featured === 'true') {
-      where.featured = true;
+      products = products.filter((p) => p.featured);
     }
 
-    type OrderBy = Record<string, string>;
-    let orderBy: OrderBy = { createdAt: 'desc' };
-
+    // Sort
     switch (sort) {
       case 'price-asc':
-        orderBy = { price: 'asc' };
+        products.sort((a, b) => a.price - b.price);
         break;
       case 'price-desc':
-        orderBy = { price: 'desc' };
+        products.sort((a, b) => b.price - a.price);
         break;
       case 'popular':
-        orderBy = { clickCount: 'desc' };
+        products.sort((a, b) => b.clickCount - a.clickCount);
         break;
       case 'newest':
       default:
-        orderBy = { createdAt: 'desc' };
+        products.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;
     }
 
-    const [products, total] = await Promise.all([
-      db.product.findMany({
-        where,
-        orderBy,
-        skip,
-        take: limit,
-        include: {
-          category: { select: { name: true, slug: true } },
-          media: {
-            orderBy: { sortOrder: 'asc' },
-            select: { id: true, url: true, type: true, source: true, sortOrder: true },
-          },
-        },
-      }),
-      db.product.count({ where }),
-    ]);
+    const total = products.length;
+    const paginatedProducts = products.slice(skip, skip + limit);
+
+    // Attach category objects
+    const withCategories = paginatedProducts.map((p) => {
+      const cat = p.categoryId ? categoryMap.get(p.categoryId) : null;
+      return {
+        ...p,
+        category: cat ? { name: cat.name, slug: cat.slug } : null,
+      };
+    });
 
     return NextResponse.json({
-      products,
+      products: withCategories,
       pagination: {
         page,
         limit,
@@ -89,37 +131,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const slug = name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '') + '-' + Date.now();
+    const now = new Date().toISOString();
+    const id = generateId();
+    const slug = generateSlug(name);
 
-    const product = await db.product.create({
-      data: {
-        name,
-        slug,
-        description: description || '',
-        price: parseFloat(price),
-        comparePrice: comparePrice ? parseFloat(comparePrice) : null,
-        affiliateLink,
-        categoryId: categoryId || null,
-        featured: featured || false,
-        media: {
-          create: (media || []).map((m: { url: string; type: string; source: string; sortOrder: number }, i: number) => ({
-            url: m.url,
-            type: m.type || 'image',
-            source: m.source || 'url',
-            sortOrder: m.sortOrder ?? i,
-          })),
-        },
-      },
-      include: {
-        category: { select: { name: true, slug: true } },
-        media: true,
-      },
-    });
+    const newProduct: Product = {
+      id,
+      name,
+      slug,
+      description: description || '',
+      price: parseFloat(price),
+      comparePrice: comparePrice ? parseFloat(comparePrice) : null,
+      affiliateLink,
+      categoryId: categoryId || null,
+      featured: featured || false,
+      clickCount: 0,
+      uniqueClickCount: 0,
+      createdAt: now,
+      updatedAt: now,
+      media: (media || []).map((m: { url: string; type?: string; source?: string; sortOrder?: number }, i: number) => ({
+        id: generateId(),
+        url: m.url,
+        type: m.type || 'image',
+        source: m.source || 'url',
+        sortOrder: m.sortOrder ?? i,
+      })),
+    };
 
-    return NextResponse.json({ product }, { status: 201 });
+    await ghUpdateJSON<Product[]>('data/products.json', (products) => {
+      return [...products, newProduct];
+    }, `Add product: ${name}`);
+
+    return NextResponse.json({ product: newProduct }, { status: 201 });
   } catch (error) {
     console.error('Error creating product:', error);
     return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });

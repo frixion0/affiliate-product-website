@@ -1,17 +1,15 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ExternalLink, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
 import type { ProductCardData } from './product-card';
 
 interface ProductDetailProps {
   product: ProductCardData;
   isExpanded: boolean;
   onClose: () => void;
-  sessionId: string;
 }
 
 function extractYouTubeId(url: string): string | null {
@@ -28,42 +26,18 @@ function extractYouTubeId(url: string): string | null {
   return null;
 }
 
-export function ProductDetail({ product, isExpanded, onClose, sessionId }: ProductDetailProps) {
+export function ProductDetail({ product, isExpanded, onClose }: ProductDetailProps) {
   const images = product.media.filter((m) => m.type === 'image').sort((a, b) => a.sortOrder - b.sortOrder);
   const videos = product.media.filter((m) => m.type === 'video').sort((a, b) => a.sortOrder - b.sortOrder);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
-  const [buyLoading, setBuyLoading] = useState(false);
 
   const hasDiscount = product.comparePrice && product.comparePrice > product.price;
   const discount = hasDiscount
     ? Math.round(((product.comparePrice! - product.price) / product.comparePrice!) * 100)
     : 0;
 
-  const handleBuyNow = useCallback(async () => {
-    setBuyLoading(true);
-    try {
-      const res = await fetch(`/api/products/${product.id}/click`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        window.open(data.affiliateLink, '_blank');
-      } else {
-        toast.error('Failed to process. Please try again.');
-      }
-    } catch {
-      toast.error('Network error. Please try again.');
-    } finally {
-      setBuyLoading(false);
-    }
-  }, [product.id, sessionId]);
-
-  // Reset state when product changes
-  const currentImages = images;
-  if (currentImages.length > 0 && selectedImageIndex >= currentImages.length) {
+  if (images.length > 0 && selectedImageIndex >= images.length) {
     setSelectedImageIndex(0);
   }
 
@@ -209,25 +183,17 @@ export function ProductDetail({ product, isExpanded, onClose, sessionId }: Produ
 
                 <Button
                   size="lg"
-                  onClick={handleBuyNow}
-                  disabled={buyLoading}
+                  onClick={() => window.open(product.affiliateLink, '_blank')}
                   className="w-full sm:w-auto text-base font-semibold h-12 rounded-xl"
                 >
-                  {buyLoading ? (
-                    <span className="flex items-center gap-2">
-                      <span className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                      Processing...
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-2">
-                      <ExternalLink className="h-4.5 w-4.5" />
-                      Buy Now
-                    </span>
-                  )}
+                  <span className="flex items-center gap-2">
+                    <ExternalLink className="h-4.5 w-4.5" />
+                    Buy Now
+                  </span>
                 </Button>
 
                 <p className="text-xs text-muted-foreground mt-3">
-                  {product.clickCount.toLocaleString()} clicks · Affiliate link will open in a new tab
+                  Affiliate link will open in a new tab
                 </p>
               </div>
             </div>

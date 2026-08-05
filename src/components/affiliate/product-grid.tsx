@@ -24,7 +24,6 @@ interface CategoryData {
 
 interface ProductGridProps {
   searchQuery: string;
-  sessionId: string;
 }
 
 const COLUMNS = { mobile: 2, md: 3, lg: 4 };
@@ -36,21 +35,13 @@ function getColumns(): number {
   return COLUMNS.mobile;
 }
 
-export function ProductGrid({ searchQuery, sessionId }: ProductGridProps) {
+export function ProductGrid({ searchQuery }: ProductGridProps) {
   const [category, setCategory] = useState<string | null>(null);
   const [sort, setSort] = useState('newest');
   const [page, setPage] = useState(1);
   const [columns, setColumns] = useState(COLUMNS.mobile);
   const [expandedProductId, setExpandedProductId] = useState<string | null>(null);
   const [isFeatured, setIsFeatured] = useState(false);
-  const [dbReady, setDbReady] = useState(false);
-
-  // Wait for DB setup on first load
-  useEffect(() => {
-    fetch('/api/setup')
-      .then(() => setDbReady(true))
-      .catch(() => setDbReady(true)); // proceed anyway
-  }, []);
 
   // Responsive columns
   useEffect(() => {
@@ -74,7 +65,6 @@ export function ProductGrid({ searchQuery, sessionId }: ProductGridProps) {
     queryKey: ['categories'],
     queryFn: () => fetch('/api/categories').then((r) => r.json()),
     staleTime: 5 * 60 * 1000,
-    enabled: dbReady,
   });
 
   const { data, isLoading, isError } = useQuery<{ products: ProductCardData[]; pagination: { page: number; totalPages: number; total: number } }>({
@@ -91,8 +81,6 @@ export function ProductGrid({ searchQuery, sessionId }: ProductGridProps) {
         return r.json();
       });
     },
-    enabled: dbReady,
-    retry: 2,
   });
 
   const products = data?.products ?? [];
@@ -273,7 +261,6 @@ export function ProductGrid({ searchQuery, sessionId }: ProductGridProps) {
                       product={expandedProduct}
                       isExpanded={true}
                       onClose={() => setExpandedProductId(null)}
-                      sessionId={sessionId}
                     />
                   )}
                 </div>

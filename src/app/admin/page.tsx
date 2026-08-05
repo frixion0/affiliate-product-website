@@ -5,8 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus, Pencil, Trash2, Upload, Link as LinkIcon, Image, Video, X,
-  Eye, BarChart3, Package, Tag, Search, LogOut, ChevronDown,
-  ExternalLink, TrendingUp, Users, MousePointerClick, Calendar,
+  Package, Tag, Search, LogOut, ChevronDown, ExternalLink,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,10 +17,6 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip,
-  ResponsiveContainer, CartesianGrid,
-} from 'recharts';
 import { toast } from 'sonner';
 
 // --- Types ---
@@ -41,8 +36,6 @@ interface Product {
   affiliateLink: string;
   categoryId: string | null;
   featured: boolean;
-  clickCount: number;
-  uniqueClickCount: number;
   media: { id: string; url: string; type: string; source: string; sortOrder: number }[];
   category?: { name: string; slug: string } | null;
   createdAt: string;
@@ -53,13 +46,6 @@ interface Category {
   name: string;
   slug: string;
   _count: { products: number };
-}
-
-interface ClickStats {
-  totals: { totalClicks: number; totalUnique: number; totalProducts: number };
-  productStats: { id: string; name: string; clickCount: number; uniqueClickCount: number }[];
-  timeSeries: { date: string; total: number; unique: number }[];
-  recentLogs: { id: string; createdAt: string; sessionId: string; product: { name: string } }[];
 }
 
 // --- Password Gate ---
@@ -93,7 +79,7 @@ function PasswordGate({ onAuth }: { onAuth: () => void }) {
       >
         <div className="text-center mb-8">
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-            <BarChart3 className="w-8 h-8 text-primary" />
+            <Package className="w-8 h-8 text-primary" />
           </div>
           <h1 className="text-2xl font-bold">Admin Access</h1>
           <p className="text-muted-foreground text-sm mt-1">Enter the admin password to continue</p>
@@ -355,110 +341,6 @@ function ProductForm({
   );
 }
 
-// --- Analytics Dashboard ---
-function AnalyticsDashboard({ stats }: { stats: ClickStats }) {
-  const [period, setPeriod] = useState('daily');
-  const { totals, productStats, timeSeries, recentLogs } = stats;
-
-  return (
-    <div className="space-y-6">
-      {/* Stat Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Total Clicks', value: totals.totalClicks, icon: MousePointerClick, color: 'text-primary' },
-          { label: 'Unique Clicks', value: totals.totalUnique, icon: Users, color: 'text-chart-2' },
-          { label: 'Total Products', value: totals.totalProducts, icon: Package, color: 'text-chart-3' },
-          { label: 'Avg Clicks/Product', value: totals.totalProducts ? (totals.totalClicks / totals.totalProducts).toFixed(1) : '0', icon: TrendingUp, color: 'text-chart-4' },
-        ].map((s) => (
-          <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="border border-border rounded-xl p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground">{s.label}</span>
-              <s.icon className={`w-4 h-4 ${s.color}`} />
-            </div>
-            <p className="text-2xl font-bold">{s.value}</p>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Chart */}
-      <div className="border border-border rounded-xl p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold">Click Trends</h3>
-          <Select value={period} onValueChange={setPeriod}>
-            <SelectTrigger className="w-32 h-8 text-xs"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="hourly">Hourly</SelectItem>
-              <SelectItem value="daily">Daily</SelectItem>
-              <SelectItem value="weekly">Weekly</SelectItem>
-              <SelectItem value="monthly">Monthly</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={timeSeries}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
-              <YAxis tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
-              <RTooltip
-                contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', fontSize: 12 }}
-              />
-              <Line type="monotone" dataKey="total" stroke="var(--primary)" strokeWidth={2} dot={false} name="Total" />
-              <Line type="monotone" dataKey="unique" stroke="var(--chart-2)" strokeWidth={2} dot={false} name="Unique" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Top Products */}
-      <div className="border border-border rounded-xl p-4">
-        <h3 className="font-semibold mb-4">Top Products by Clicks</h3>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={productStats.slice(0, 8)} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis type="number" tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
-              <YAxis type="category" dataKey="name" width={140} tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
-              <RTooltip
-                contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', fontSize: 12 }}
-              />
-              <Bar dataKey="clickCount" fill="var(--primary)" radius={[0, 4, 4, 0]} name="Clicks" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Recent Click Logs */}
-      <div className="border border-border rounded-xl p-4">
-        <h3 className="font-semibold mb-4">Recent Clicks</h3>
-        <div className="overflow-x-auto max-h-80 overflow-y-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Product</th>
-                <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Session</th>
-                <th className="text-left py-2 font-medium text-muted-foreground">Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentLogs.slice(0, 50).map((log) => (
-                <tr key={log.id} className="border-b border-border/50">
-                  <td className="py-2 pr-4 font-medium">{log.product.name}</td>
-                  <td className="py-2 pr-4 text-muted-foreground font-mono text-xs">{log.sessionId.slice(0, 12)}...</td>
-                  <td className="py-2 text-muted-foreground text-xs">{new Date(log.createdAt).toLocaleString()}</td>
-                </tr>
-              ))}
-              {recentLogs.length === 0 && (
-                <tr><td colSpan={3} className="py-8 text-center text-muted-foreground">No clicks yet</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // --- Main Admin Page ---
 export default function AdminPage() {
   const [authenticated, setAuthenticated] = useState(false);
@@ -484,14 +366,6 @@ export default function AdminPage() {
     },
   });
 
-  const { data: stats, refetch: refetchStats } = useQuery({
-    queryKey: ['admin-stats'],
-    queryFn: async () => {
-      const res = await fetch('/api/clicks');
-      return res.json() as Promise<ClickStats>;
-    },
-  });
-
   const saveProduct = useMutation({
     mutationFn: async (data: any) => {
       if (editingProduct) {
@@ -506,7 +380,7 @@ export default function AdminPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
       setShowForm(false); setEditingProduct(undefined);
-      toast.success(editingProduct ? 'Product updated' : 'Product added');
+      toast.success('Product saved! Site will update in ~20 seconds.');
     },
     onError: () => toast.error('Failed to save product'),
   });
@@ -515,7 +389,7 @@ export default function AdminPage() {
     mutationFn: (id: string) => fetch(`/api/products/${id}`, { method: 'DELETE' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
-      toast.success('Product deleted');
+      toast.success('Product deleted! Site will update in ~20 seconds.');
     },
   });
 
@@ -528,7 +402,7 @@ export default function AdminPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
       setNewCatName('');
-      toast.success('Category added');
+      toast.success('Category added! Site will update in ~20 seconds.');
     },
   });
 
@@ -536,7 +410,7 @@ export default function AdminPage() {
     mutationFn: (id: string) => fetch(`/api/categories/${id}`, { method: 'DELETE' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
-      toast.success('Category deleted');
+      toast.success('Category deleted! Site will update in ~20 seconds.');
     },
   });
 
@@ -550,7 +424,7 @@ export default function AdminPage() {
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <BarChart3 className="w-5 h-5 text-primary" />
+            <Package className="w-5 h-5 text-primary" />
             <h1 className="text-lg font-bold">DealsHub Admin</h1>
           </div>
           <Button variant="ghost" size="sm" onClick={handleLogout}>
@@ -563,7 +437,6 @@ export default function AdminPage() {
         <Tabs defaultValue="products">
           <TabsList className="mb-6">
             <TabsTrigger value="products"><Package className="w-4 h-4 mr-2" /> Products</TabsTrigger>
-            <TabsTrigger value="analytics"><BarChart3 className="w-4 h-4 mr-2" /> Analytics</TabsTrigger>
             <TabsTrigger value="categories"><Tag className="w-4 h-4 mr-2" /> Categories</TabsTrigger>
           </TabsList>
 
@@ -598,7 +471,6 @@ export default function AdminPage() {
                       <th className="text-left py-3 px-4 font-medium">Product</th>
                       <th className="text-left py-3 px-4 font-medium">Price</th>
                       <th className="text-left py-3 px-4 font-medium">Category</th>
-                      <th className="text-center py-3 px-4 font-medium">Clicks</th>
                       <th className="text-center py-3 px-4 font-medium">Featured</th>
                       <th className="text-right py-3 px-4 font-medium">Actions</th>
                     </tr>
@@ -625,10 +497,6 @@ export default function AdminPage() {
                         </td>
                         <td className="py-3 px-4 text-muted-foreground">{p.category?.name || '-'}</td>
                         <td className="py-3 px-4 text-center">
-                          <span className="font-medium">{p.clickCount}</span>
-                          <span className="text-xs text-muted-foreground"> / {p.uniqueClickCount} unique</span>
-                        </td>
-                        <td className="py-3 px-4 text-center">
                           {p.featured && <Badge className="bg-primary/10 text-primary border-0">Featured</Badge>}
                         </td>
                         <td className="py-3 px-4">
@@ -650,21 +518,12 @@ export default function AdminPage() {
                       </tr>
                     ))}
                     {(!products || products.length === 0) && (
-                      <tr><td colSpan={6} className="py-12 text-center text-muted-foreground">No products yet. Add your first product!</td></tr>
+                      <tr><td colSpan={5} className="py-12 text-center text-muted-foreground">No products yet. Add your first product!</td></tr>
                     )}
                   </tbody>
                 </table>
               </div>
             </div>
-          </TabsContent>
-
-          {/* Analytics Tab */}
-          <TabsContent value="analytics">
-            {stats ? (
-              <AnalyticsDashboard stats={stats} />
-            ) : (
-              <div className="flex items-center justify-center py-20 text-muted-foreground">Loading analytics...</div>
-            )}
           </TabsContent>
 
           {/* Categories Tab */}

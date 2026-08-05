@@ -16,13 +16,8 @@ const queryClient = new QueryClient({
   },
 });
 
-function generateSessionId(): string {
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-}
-
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [sessionId] = useState(() => generateSessionId());
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -31,7 +26,7 @@ export default function Home() {
 
         <main className="flex-1">
           <Hero searchQuery={searchQuery} onSearchChange={setSearchQuery} />
-          <ProductGrid searchQuery={searchQuery} sessionId={sessionId} />
+          <ProductGrid searchQuery={searchQuery} />
         </main>
 
         <Footer />
