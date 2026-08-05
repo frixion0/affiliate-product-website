@@ -1,5 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Affiliate Product Store - Prisma Schema
 
 generator client {
   provider = "prisma-client-js"
@@ -11,43 +10,48 @@ datasource db {
 }
 
 model Category {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  description String?
-  image       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  products    Product[]
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  products  Product[]
 }
 
 model Product {
-  id           String   @id @default(cuid())
-  name         String
-  slug         String   @unique
-  description  String
-  price        Float
-  comparePrice Float?
-  categoryId   String
-  category     Category @relation(fields: [categoryId], references: [id])
-  images       String
-  featured     Boolean  @default(false)
-  trending     Boolean  @default(false)
-  rating       Float    @default(0)
-  reviewCount  Int      @default(0)
-  stock        Int      @default(0)
-  tags         String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  reviews      Review[]
+  id               String         @id @default(cuid())
+  name             String
+  slug             String         @unique
+  description      String         @default("")
+  price            Float
+  comparePrice     Float?
+  affiliateLink    String
+  categoryId       String?
+  category         Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  featured         Boolean        @default(false)
+  clickCount       Int            @default(0)
+  uniqueClickCount Int            @default(0)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  media            ProductMedia[]
+  clickLogs        ClickLog[]
 }
 
-model Review {
+model ProductMedia {
   id        String   @id @default(cuid())
   productId String
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  author    String
-  rating    Int
-  comment   String
+  url       String
+  type      String
+  source    String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model ClickLog {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sessionId String
   createdAt DateTime @default(now())
 }

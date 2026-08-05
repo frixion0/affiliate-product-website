@@ -14,9 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LUXE — Premium Online Store",
-  description: "Discover curated collections of premium products. From tech to fashion, find extraordinary items that define your lifestyle.",
-  keywords: ["luxe", "premium", "ecommerce", "fashion", "electronics", "lifestyle"],
+  title: "DealsHub — Best Deals, Curated",
+  description: "Discover the best deals across top products. Curated daily with the best prices.",
   icons: {
     icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
   },

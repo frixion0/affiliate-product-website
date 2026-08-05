@@ -5,51 +5,74 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
-    const featured = searchParams.get('featured');
-    const trending = searchParams.get('trending');
     const search = searchParams.get('search');
-    const sort = searchParams.get('sort') || 'createdAt';
-    const limit = parseInt(searchParams.get('limit') || '50');
+    const sort = searchParams.get('sort') || 'newest';
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const featured = searchParams.get('featured');
+    const limit = 12;
+    const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = {};
 
     if (category) {
       where.category = { slug: category };
     }
+
+    if (search) {
+      where.name = { contains: search };
+    }
+
     if (featured === 'true') {
       where.featured = true;
     }
-    if (trending === 'true') {
-      where.trending = true;
-    }
-    if (search) {
-      where.OR = [
-        { name: { contains: search } },
-        { description: { contains: search } },
-        { tags: { contains: search } },
-      ];
+
+    type OrderBy = Record<string, string>;
+    let orderBy: OrderBy = { createdAt: 'desc' };
+
+    switch (sort) {
+      case 'price-asc':
+        orderBy = { price: 'asc' };
+        break;
+      case 'price-desc':
+        orderBy = { price: 'desc' };
+        break;
+      case 'popular':
+        orderBy = { clickCount: 'desc' };
+        break;
+      case 'newest':
+      default:
+        orderBy = { createdAt: 'desc' };
+        break;
     }
 
-    const orderBy: Record<string, string> = {};
-    if (sort === 'price-asc') orderBy.price = 'asc';
-    else if (sort === 'price-desc') orderBy.price = 'desc';
-    else if (sort === 'rating') orderBy.rating = 'desc';
-    else if (sort === 'popular') orderBy.reviewCount = 'desc';
-    else orderBy.createdAt = 'desc';
+    const [products, total] = await Promise.all([
+      db.product.findMany({
+        where,
+        orderBy,
+        skip,
+        take: limit,
+        include: {
+          category: { select: { name: true, slug: true } },
+          media: {
+            orderBy: { sortOrder: 'asc' },
+            select: { id: true, url: true, type: true, source: true, sortOrder: true },
+          },
+        },
+      }),
+      db.product.count({ where }),
+    ]);
 
-    const products = await db.product.findMany({
-      where,
-      orderBy,
-      take: limit,
-      include: {
-        category: { select: { name: true, slug: true } },
-        reviews: { take: 3, orderBy: { createdAt: 'desc' } },
+    return NextResponse.json({
+      products,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
       },
     });
-
-    return NextResponse.json(products);
   } catch (error) {
-    console.error('Products API error:', error);
+    console.error('Error fetching products:', error);
     return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
   }
 }
