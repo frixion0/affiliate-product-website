@@ -40,9 +40,10 @@ export function Navbar({ searchQuery, onSearchChange }: NavbarProps) {
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="text-xl font-bold tracking-tight text-primary hover:opacity-80 transition-opacity"
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
         >
-          DealsHub
+          <img src="/logo.png" alt="DealsHub" className="h-8 w-8 rounded-lg object-cover" />
+          <span className="text-xl font-bold tracking-tight text-primary">DealsHub</span>
         </button>
 
         <div className="hidden md:flex items-center gap-8">

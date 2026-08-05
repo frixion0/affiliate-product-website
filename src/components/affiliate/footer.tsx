@@ -8,7 +8,10 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
           <div className="col-span-2 md:col-span-1">
-            <h3 className="text-lg font-bold mb-2">DealsHub</h3>
+            <div className="flex items-center gap-2 mb-2">
+              <img src="/logo.png" alt="DealsHub" className="h-7 w-7 rounded-lg object-cover" />
+              <h3 className="text-lg font-bold">DealsHub</h3>
+            </div>
             <p className="text-primary-foreground/70 text-sm leading-relaxed">
               Your go-to destination for the best curated deals across all categories.
             </p>
